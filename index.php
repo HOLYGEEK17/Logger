@@ -3,6 +3,15 @@
 <!DOCTYPE html>
 <head>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <script
+    src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+    crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
 </head>
 
 <body>
@@ -38,16 +47,20 @@ if (!$_SESSION["gid"]) {
       $gid = $google_account_info->id;
       $gpic = $google_account_info->picture;
 
-      echo "<img src='$gpic' style='width: 50px'> <p> Hello $gname [$gmail]</p>";
-      echo "<p> ID: $gid </p>";  
-      echo "<p> code: $code </p>";
+      console_log("ID: $gid");
+      console_log("ID: $code");        
 
       $_SESSION["gid"] = $gid;
       $_SESSION["gname"] = $gname;
       $_SESSION["gmail"] = $gmail;
       $_SESSION["gpic"] = $gpic;
   } else {
-      echo "<a href='".$client->createAuthUrl()."'>Google Login</a>";
+      $gurl = $client->createAuthUrl();
+      echo <<<EOF
+      <div class="text-center">
+        <button class="btn btn-primary" type="submit" style="margin-top: 100px;" onclick="location.href = '$gurl';">Google Login</button>
+      </div>
+      EOF;
       die();
   }
 } else {
@@ -56,41 +69,36 @@ if (!$_SESSION["gid"]) {
   $gmail = $_SESSION["gmail"];
   $gpic = $_SESSION["gpic"];
 
-  echo "From session";
-  echo "<img src='$gpic' style='width: 50px'> <p> Hello $gname [$gmail]</p>";
-  echo "<p> ID: $gid </p>";  
+  console_log("From session");
+  console_log("ID: $gid");  
 }
-?>
 
+echo <<<EOF
+  <div class="container-fluid">
+    <div class='m-3'><img src='$gpic' style='width: 30px'> <p style='display: inline-block; margin-left: 10px;'> $gname [$gmail]</p></div>
+    <form action='\' method="post" autocomplete="off" class="m-3">    
+      <div class="form-row">
+        <div class="col"> 
+          <input type="text" id="form-log" class="form-control" name=log placeholder="Log">
+        </div>
+        <div class="col"> 
+          <input type="text" id="form-cat" class="form-control" name=category placeholder="Category">
+        </div>    
+        <div class="col"> 
+          <input type="text" class="form-control" name=amount placeholder="Amount">
+        </div>
 
-
-<div class="container-fluid">
-  <form action='\' method="post" autocomplete="off" class="m-3">    
-    <div class="form-row">
-      <div class="col"> 
-        <input type="text" id="form-log" class="form-control" name=log placeholder="Log">
+        <button type=submit class="btn btn-primary">Log</button>      
       </div>
-      <div class="col"> 
-        <input type="text" id="form-cat" class="form-control" name=category placeholder="Category">
-      </div>    
-      <div class="col"> 
-        <input type="text" class="form-control" name=amount placeholder="Amount">
-      </div>
-
-      <button type=submit class="btn btn-primary">Log</button>      
-    </div>
-  </form>
-
-<?php
+    </form>
+  EOF;
 
 // requests info
-println('$_REQUEST: ');
-print_r($_REQUEST);
-print('<br><br>');
-println('$_SESSION: ');
-print_r($_SESSION);
-print('<br><br>');
+console_log('$_REQUEST: ');
+console_log(print_r($_REQUEST, true));
 
+console_log('$_SESSION: ');
+console_log(print_r($_SESSION, true));
 
 // DB connection
 
@@ -135,28 +143,35 @@ function println($str) {
   print $str . '<br>';
 }
 
+function console_log($output, $with_script_tags = true) {
+  $js_code = 'console.log(' . json_encode($output, JSON_HEX_TAG) . ');';
+  if ($with_script_tags) $js_code = '<script>' . $js_code . '</script>';
+  echo $js_code;
+}
 
-// Auto-complete paramters
-$autoLogs = getRows("select distinct log from logs", "log");
-$autoCats = getRows("select distinct category from logs", "category");
 
 // Get parameters
 
+// Get uid
+$uid = getSingle("select uid from users where gid = '$gid'");
+if (!$uid) {
+    query("insert into users (gid) values ('$gid')");
+    $uid = getSingle("select uid from users where gid = '$gid'");
+    console_log("Generated uid: $uid");
+} else {
+    console_log("uid: $uid");
+}
+
+// Auto-complete paramters
+$autoLogs = getRows("select distinct log from logs where uid = $uid", "log");
+$autoCats = getRows("select distinct category from logs where uid = $uid", "category");
+
+// Insert log
 if ($_REQUEST['log']) {
   $log = mysqli_real_escape_string($conn, $_REQUEST['log']);
   $category = mysqli_real_escape_string($conn, $_REQUEST['category']);
   $amount = mysqli_real_escape_string($conn, $_REQUEST['amount']);
   $ip = $_SERVER['REMOTE_ADDR'];
-
-  $uid = getSingle("select uid from users where ip = '$ip'");
-  if (!$uid) {
-      $ip = $_SERVER['REMOTE_ADDR'];
-      $q = "insert into users (ip) values ('$ip')";
-      query($q);
-      $uid = getSingle("select uid from users where ip = '$ip'");
-  } else {
-      println("uid: $uid<br>");
-  }
 
   date_default_timezone_set('america/new_york');
   $date = Date("Y-m-d H:i:s");
@@ -165,7 +180,7 @@ if ($_REQUEST['log']) {
 
 // Render logs
 
-$res = query("select * from logs order by date desc");
+$res = query("select * from logs where uid = $uid order by date desc");
 print <<<EOF
 <table class="table m-3">
 <thead>
@@ -204,15 +219,6 @@ mysqli_close($conn);
 
 ?>
 </div>
-
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-<script
-  src="https://code.jquery.com/jquery-3.4.1.min.js"
-  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
-  crossorigin="anonymous"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 
 <!-- autocomplete -->
 <script>
