@@ -1,3 +1,5 @@
+<?php session_start();?>
+
 <!DOCTYPE html>
 <head>
   <link rel="stylesheet" href="styles.css">
@@ -6,46 +8,58 @@
 <body>
 
 <?php
-// require_once 'vendor/autoload.php';
+require_once 'vendor/autoload.php';
 
-// // init configuration
-// $clientID = '172854096684-niqcqe1al91vo0vl3gth63nv0t17lqvb.apps.googleusercontent.com';
-// $clientSecret = 'tGD3rKypVsep2A1iVgq3X8xw';
-// $redirectUri = 'http://logger.today';
+// init configuration
+$clientID = '172854096684-niqcqe1al91vo0vl3gth63nv0t17lqvb.apps.googleusercontent.com';
+$clientSecret = 'tGD3rKypVsep2A1iVgq3X8xw';
+$redirectUri = 'http://logger.today';
 
-// // create Client Request to access Google API
-// $client = new Google_Client();
-// $client->setClientId($clientID);
-// $client->setClientSecret($clientSecret);
-// $client->setRedirectUri($redirectUri);
-// $client->addScope("email");
-// $client->addScope("profile");
+// create Client Request to access Google API
+$client = new Google_Client();
+$client->setClientId($clientID);
+$client->setClientSecret($clientSecret);
+$client->setRedirectUri($redirectUri);
+$client->addScope("email");
+$client->addScope("profile");
 
-// // authenticate code from Google OAuth Flow
-// if (isset($_GET['code'])) {
-//     $code = $_GET['code'];
-//     $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
-//     $client->setAccessToken($token['access_token']);
+// authenticate code from Google OAuth Flow
+if (!$_SESSION["gid"]) {
+  if (isset($_GET['code'])) {
+      $code = $_GET['code'];
+      $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
+      $client->setAccessToken($token['access_token']);
 
-//     // get profile info
-//     $google_oauth = new Google_Service_Oauth2($client);
-//     $google_account_info = $google_oauth->userinfo->get();
-//     $email =  $google_account_info->email;
-//     $name =  $google_account_info->name;
-//     $gid = $google_account_info->id;
-//     $gpic = $google_account_info->picture;
+      // get profile info
+      $google_oauth = new Google_Service_Oauth2($client);
+      $google_account_info = $google_oauth->userinfo->get();
+      $gmail =  $google_account_info->email;
+      $gname =  $google_account_info->name;
+      $gid = $google_account_info->id;
+      $gpic = $google_account_info->picture;
 
-//     echo "<img src='$gpic' style='width: 50px'> <p> Hello $name [$email]</p>";
-//     echo "<p> ID: $gid </p>";  
-//     echo "<p> code: $code </p>";  
-// } else if ($_REQUEST['code']) {
-//     echo 'second<br>';
-//     echo $_REQUEST['code'];
-//     die();
-// } else {
-//     echo "<a href='".$client->createAuthUrl()."'>Google Login</a>";
-//     die();
-// }
+      echo "<img src='$gpic' style='width: 50px'> <p> Hello $gname [$gmail]</p>";
+      echo "<p> ID: $gid </p>";  
+      echo "<p> code: $code </p>";
+
+      $_SESSION["gid"] = $gid;
+      $_SESSION["gname"] = $gname;
+      $_SESSION["gmail"] = $gmail;
+      $_SESSION["gpic"] = $gpic;
+  } else {
+      echo "<a href='".$client->createAuthUrl()."'>Google Login</a>";
+      die();
+  }
+} else {
+  $gid = $_SESSION["gid"];
+  $gname = $_SESSION["gname"];
+  $gmail = $_SESSION["gmail"];
+  $gpic = $_SESSION["gpic"];
+
+  echo "From session";
+  echo "<img src='$gpic' style='width: 50px'> <p> Hello $gname [$gmail]</p>";
+  echo "<p> ID: $gid </p>";  
+}
 ?>
 
 
@@ -63,12 +77,19 @@
         <input type="text" class="form-control" name=amount placeholder="Amount">
       </div>
 
-      <button type=submit class="btn btn-primary">Log</button>
-      <input type="hidden" name=code value="<?php $code ?>">
+      <button type=submit class="btn btn-primary">Log</button>      
     </div>
   </form>
 
 <?php
+
+// requests info
+println('$_REQUEST: ');
+print_r($_REQUEST);
+print('<br><br>');
+println('$_SESSION: ');
+print_r($_SESSION);
+print('<br><br>');
 
 
 // DB connection
