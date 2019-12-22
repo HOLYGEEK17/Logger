@@ -72,26 +72,6 @@ if (!$_SESSION["gid"]) {
   console_log("ID: $gid");  
 }
 
-echo <<<EOF
-  <div class="container-fluid">
-    <div class='m-3'><img src='$gpic' style='width: 30px'> <p style='display: inline-block; margin-left: 10px;'> $gname [$gmail]</p></div>
-    <form action='\' method="post" autocomplete="off" class="m-3">    
-      <div class="form-row">
-        <div class="col"> 
-          <input type="text" id="form-log" class="form-control" name=log placeholder="Log">
-        </div>
-        <div class="col"> 
-          <input type="text" id="form-cat" class="form-control" name=category placeholder="Category">
-        </div>    
-        <div class="col"> 
-          <input type="text" class="form-control" name=amount placeholder="Amount">
-        </div>
-
-        <button type=submit class="btn btn-primary">Log</button>      
-      </div>
-    </form>
-  EOF;
-
 // requests info
 console_log('$_REQUEST: ');
 console_log(print_r($_REQUEST, true));
@@ -178,6 +158,42 @@ if ($_REQUEST['log']) {
 $autoLogs = getRows("select distinct log from logs where uid = $uid", "log");
 $autoCats = getRows("select distinct category from logs where uid = $uid", "category");
 
+// body
+
+echo <<<EOF
+  <div class="container-fluid">
+    <div class='m-3'><img src='$gpic' style='width: 30px'> <p style='display: inline-block; margin-left: 10px;'> $gname [$gmail]</p></div>
+
+    <ul class="nav nav-tabs m-3" id="myTab" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" id="log-tab" data-toggle="tab" href="#log" role="tab" aria-controls="log" aria-selected="true">Log</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="summary-tab" data-toggle="tab" href="#summary" role="tab" aria-controls="summary" aria-selected="false">Summary</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="stats-tab" data-toggle="tab" href="#stats" role="tab" aria-controls="stats" aria-selected="false">Stats</a>
+      </li>
+    </ul>
+    <div class="tab-content m-3" id="myTabContent">
+      <div class="tab-pane fade show active" id="log" role="tabpanel" aria-labelledby="log-tab">
+        <form action='\' method="post" autocomplete="off">    
+          <div class="form-row">
+            <div class="col"> 
+              <input type="text" id="form-log" class="form-control" name=log placeholder="Log">
+            </div>
+            <div class="col"> 
+              <input type="text" id="form-cat" class="form-control" name=category placeholder="Category">
+            </div>    
+            <div class="col"> 
+              <input type="text" class="form-control" name=amount placeholder="Amount">
+            </div>
+
+            <button type=submit class="btn btn-primary">Log</button>      
+          </div>
+        </form>
+EOF;
+
 // Render logs
 
 $res = query("select * from logs where uid = $uid order by date desc");
@@ -216,6 +232,10 @@ print "</table>";
 mysqli_close($conn);
 
 ?>
+      </div>
+      <div class="tab-pane fade" id="summary" role="tabpanel" aria-labelledby="summary-tab">TODO Summary</div>
+      <div class="tab-pane fade" id="stats" role="tabpanel" aria-labelledby="stats-tab">TODO Stats</div>
+    </div>
 </div>
 
 <!-- autocomplete -->
