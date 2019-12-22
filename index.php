@@ -94,7 +94,11 @@ if (!$conn) die('Could not connect: ' . mysqli_connect_error());
 function query($query) {
     global $conn;
     $result = mysqli_query($conn, $query);
-    if($result === FALSE) die(mysqli_error($conn));    
+    if ($result === FALSE) {
+      console_log("Fail: $query");
+      console_log(mysqli_error($conn));
+      die(mysqli_error($conn));    
+    } 
     return $result;
 }
 
@@ -155,8 +159,8 @@ if ($_REQUEST['log']) {
 }
 
 // Auto-complete paramters
-$autoLogs = getRows("select distinct log from logs where uid = $uid", "log");
-$autoCats = getRows("select distinct category from logs where uid = $uid", "category");
+$autoLogs = getRows("select distinct log from logs where uid = $uid order by log", "log");
+$autoCats = getRows("select distinct category from logs where uid = $uid order by category", "category");
 
 // body
 
@@ -186,7 +190,7 @@ echo <<<EOF
               <input type="text" id="form-cat" class="form-control" name=category placeholder="Category">
             </div>    
             <div class="col"> 
-              <input type="text" class="form-control" name=amount placeholder="Amount">
+              <input type="number" step="any" class="form-control" name=amount placeholder="Amount">
             </div>
 
             <button type=submit class="btn btn-primary">Log</button>      
@@ -221,22 +225,48 @@ while ($row = mysqli_fetch_assoc($res)) {
   <tr>
     <td>$log</td>
     <td>$category</td>
-    <td>$amount</td>
+    <td align="right">$amount</td>
     <td>$date</td>
   </tr>
   EOF;
 }
-print "</tbody>";
-print "</table>";
+echo "</tbody>";
+echo "</table>";
+?>
+      </div>
+      <div class="tab-pane fade" id="summary" role="tabpanel" aria-labelledby="summary-tab">
+<?php
 
-mysqli_close($conn);
+// Summary tab
+print <<<EOF
+<table class="table m-3">
+<tbody>
+
+EOF;
+
+foreach($autoCats as $cat){
+
+  echo "<tr class='bg-primary' style='font-weight: bold;'><td>$cat</td><td></td></tr>";
+  
+  $res = query("select category, log, sum(amount) as sum from logs where category='$cat' group by category, log");  
+  while ($row = mysqli_fetch_assoc($res)) {
+    $s_sum = $row['sum'];
+    $s_log = htmlspecialchars($row['log']);  
+        
+    echo "<tr><td>$s_log</td><td align='right'>$s_sum</td></tr>";    
+  }
+}
+
+echo "</tbody>";
+echo "</table>";
 
 ?>
       </div>
-      <div class="tab-pane fade" id="summary" role="tabpanel" aria-labelledby="summary-tab">TODO Summary</div>
       <div class="tab-pane fade" id="stats" role="tabpanel" aria-labelledby="stats-tab">TODO Stats</div>
     </div>
 </div>
+
+<?php mysqli_close($conn); ?>
 
 <!-- autocomplete -->
 <script>
