@@ -56,6 +56,7 @@ if (!$_SESSION["gid"]) {
       $gurl = $client->createAuthUrl();
       echo <<<EOF
       <div class="text-center">
+        <img style="width: 100px; margin-top: 80px;" src="https://lh3.googleusercontent.com/223EYb8Y_XU3mHPwSL1Cqxd5G31aMeTcZ_Z-xE0mwVGDuhboYUmMJxbRWTWK5ZsdvMs9unnMRnvW-Zd7lngsRBEKBZ6zM2ZPwNuLdy0qXwzVYik35OutKVAUPxvhDZiGPtOGJI43AGRgxx7D6YJ1VZcnpD5r0IC8TwCmORJn6vnbCj3tzy4sjFZgvkriGcU0N3ByQclddpv9bXYx6eG2wsoooO025qfJOJ2IoCE3hOpXVNTkTOfVAUBtGzIJHDWdeqctFklXe35AyHQmakrD7gIrdo_LRwsEQ7AxnFmIh7Y932qIIF7N9z7alTP-YNkMIQ2qj53azuqBSHYCbCsgvuGixH59XpRpIAgTvyr89XY3urvgIuQddf3YacNQK3QFuamMzClEZxUdkkh0OK-x_sGqBGXukfzHUHSodVzPLqE4ZxLekpGsk7BkyKcTNYv6_iWJ4Dt4MxNSlGpdwT1IAZzzAQ47GTIs4l_EjhKuv5BekqMIMDVE-Wlbavt0kAV71_6nwuiVZHvP3Zt02Nx6F9AZ7RgJwYOUKELmFUSh2WEr7pof2fy4ALarK8w3hlDPWqimeef8Rl52E3yfAhQg8Kyd6eVLdDHWKZMfyiAHV1eGFn_6KbspoGlnvL03w4aN1SfunLTscgI-gpAZgAPnAb1-V3uI66Wqan8wwPKmB-5Ezg-chrvD_Sg=s240-no">
         <button class="btn btn-primary" type="submit" style="margin-top: 100px;" onclick="location.href = '$gurl';">Google Login</button>
       </div>
       EOF;
@@ -153,28 +154,29 @@ function console_log($output, $with_script_tags = true) {
 // Get uid
 $uid = getSingle("select uid from users where gid = '$gid'");
 if (!$uid) {
-    query("insert into users (gid) values ('$gid')");
+    $ip = $_SERVER['REMOTE_ADDR'];
+
+    query("insert into users (ip, gid, gname, gmail, gpic) values ('$ip', '$gid', '$gname', '$gmail', '$gpic')");
     $uid = getSingle("select uid from users where gid = '$gid'");
     console_log("Generated uid: $uid");
 } else {
     console_log("uid: $uid");
 }
 
-// Auto-complete paramters
-$autoLogs = getRows("select distinct log from logs where uid = $uid", "log");
-$autoCats = getRows("select distinct category from logs where uid = $uid", "category");
-
 // Insert log
 if ($_REQUEST['log']) {
   $log = mysqli_real_escape_string($conn, $_REQUEST['log']);
   $category = mysqli_real_escape_string($conn, $_REQUEST['category']);
   $amount = mysqli_real_escape_string($conn, $_REQUEST['amount']);
-  $ip = $_SERVER['REMOTE_ADDR'];
 
   date_default_timezone_set('america/new_york');
   $date = Date("Y-m-d H:i:s");
   query("insert into logs (uid, log, category, amount, date) values ($uid, '$log', '$category', '$amount', '$date')");
 }
+
+// Auto-complete paramters
+$autoLogs = getRows("select distinct log from logs where uid = $uid", "log");
+$autoCats = getRows("select distinct category from logs where uid = $uid", "category");
 
 // Render logs
 
