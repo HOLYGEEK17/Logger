@@ -213,7 +213,7 @@ echo <<<EOF
 EOF;
 ?>
       </div>
-      <div class="tab-pane fade m-3" id="summary" role="tabpanel" aria-labelledby="summary-tab">
+      <div class="tab-pane fade" id="summary" role="tabpanel" aria-labelledby="summary-tab">
 <?php
 
 // Summary tab
@@ -228,14 +228,21 @@ EOF;
 
 foreach($autoCats as $cat){
   echo "<tr><td></td><td></td></tr>";
-  echo "<tr class='table-primary' style='font-weight: bold;'><td>$cat</td><td></td></tr>";
+  echo "<tr style='font-weight: bold;font-size: large;'><td>$cat</td><td></td></tr>";
   
   $res = query("select category, log, sum(amount) as sum from logs where category='$cat' and uid='$uid' group by category, log");  
   while ($row = mysqli_fetch_assoc($res)) {
     $s_sum = $row['sum'];
     $s_log = htmlspecialchars($row['log']);  
+
+    // process sum
+    $sum_display = "style='color: orangered;'";
+    if ($s_sum < 0) {
+        $s_sum *= -1;
+        $sum_display = "style='color: green;'";
+    }
         
-    echo "<tr><td>$s_log</td><td align='right'>$s_sum</td></tr>";    
+    echo "<tr><td>$s_log</td><td align='right' $sum_display>$s_sum</td></tr>";    
   }
 }
 
@@ -248,7 +255,7 @@ echo "</table>";
 <?php
 // Recurr Tab
 ?>
-        <h5>Monthly Recurrents</h5>
+        <h5 class="mt-3 mb-3">Monthly Recurrents</h5>
         <form id="recurr-form" autocomplete="off">    
           <div class="form-row">
             <div class="col"> 
