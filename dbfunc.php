@@ -106,11 +106,18 @@ function getLog() {
     $amount = htmlspecialchars($row['amount']);
     $date = $row['date'];
 
+    // process amount
+    $amount_display = "style='color: orangered;'";
+    if ($amount < 0) {
+        $amount *= -1;
+        $amount_display = "style='color: green;'";
+    }
+
     print <<<EOF
     <tr>
         <td>$log</td>
         <td>$category</td>
-        <td align="right">$amount</td>
+        <td align="right" $amount_display>$amount</td>
         <td>$date</td>
     </tr>
     EOF;

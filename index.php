@@ -167,7 +167,7 @@ if (!$recurr_sum) $recurr_sum = 0;
 $net_income += $recurr_sum;
 
 $net_income_style = "";
-if ($net_income < 0) $net_income_style = "color: red";
+if ($net_income < 0) $net_income_style = "color: orangered";
 else $net_income_style = "color: green";
 
 echo <<<EOF
@@ -276,10 +276,10 @@ $(function() {
     var logs = <?php echo json_encode($autoLogs);?>;  
     var cats = <?php echo json_encode($autoCats);?>;
     
-    $("#form-log").autocomplete({
+    $("#llog").autocomplete({
       source: logs
     });
-    $("#form-cat").autocomplete({
+    $("#lcategory").autocomplete({
       source: cats
     });
 
