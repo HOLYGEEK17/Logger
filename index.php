@@ -206,7 +206,7 @@ echo <<<EOF
               <input type="number" step="any" class="form-control" id=lamount name=lamount placeholder="Amount" required="true">
             </div>
 
-            <button type=submit class="btn btn-primary">Log</button>      
+            <button type=submit class="btn btn-primary" data-toggle="tooltip" data-placement="bottom" title="Log a record of expense, with name, category and the amount. Enter minus value for money income">Log</button>      
           </div>
         </form>
         <div id='log-list'></div>
@@ -257,7 +257,7 @@ echo "</table>";
             <div class="col"> 
               <input type="number" step="any" class="form-control" id="ramount" name=ramount placeholder="Amount" required="true">
             </div>
-            <button type=submit class="btn btn-primary">Add Recurrent</button>      
+            <button type=submit class="btn btn-primary" data-toggle="tooltip" data-placement="bottom" title="Add recurrent such as income or rent that will repeat monthly">Add Recurrent</button>      
           </div>
           <!-- <input type="hidden" id=uid name=uid value="<?php echo $uid; ?>">  -->
         </form>
@@ -288,6 +288,10 @@ $(function() {
     getRecurr();
 });
 
+// Tooltips
+$(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+})
 
 function getRecurr() {
     $("#recurr-list").html(`<div class="text-center"><img style="width: 200px; margin-top: 80px;" src="https://s5.gifyu.com/images/50453c5553eeb38_a.gif"></div>`);
