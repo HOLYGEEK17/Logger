@@ -56,7 +56,7 @@ if (!$_SESSION["gid"]) {
       $gurl = $client->createAuthUrl();
       echo <<<EOF
       <div class="text-center">
-        <img style="width: 100px; margin-top: 80px;" src="https://lh3.googleusercontent.com/223EYb8Y_XU3mHPwSL1Cqxd5G31aMeTcZ_Z-xE0mwVGDuhboYUmMJxbRWTWK5ZsdvMs9unnMRnvW-Zd7lngsRBEKBZ6zM2ZPwNuLdy0qXwzVYik35OutKVAUPxvhDZiGPtOGJI43AGRgxx7D6YJ1VZcnpD5r0IC8TwCmORJn6vnbCj3tzy4sjFZgvkriGcU0N3ByQclddpv9bXYx6eG2wsoooO025qfJOJ2IoCE3hOpXVNTkTOfVAUBtGzIJHDWdeqctFklXe35AyHQmakrD7gIrdo_LRwsEQ7AxnFmIh7Y932qIIF7N9z7alTP-YNkMIQ2qj53azuqBSHYCbCsgvuGixH59XpRpIAgTvyr89XY3urvgIuQddf3YacNQK3QFuamMzClEZxUdkkh0OK-x_sGqBGXukfzHUHSodVzPLqE4ZxLekpGsk7BkyKcTNYv6_iWJ4Dt4MxNSlGpdwT1IAZzzAQ47GTIs4l_EjhKuv5BekqMIMDVE-Wlbavt0kAV71_6nwuiVZHvP3Zt02Nx6F9AZ7RgJwYOUKELmFUSh2WEr7pof2fy4ALarK8w3hlDPWqimeef8Rl52E3yfAhQg8Kyd6eVLdDHWKZMfyiAHV1eGFn_6KbspoGlnvL03w4aN1SfunLTscgI-gpAZgAPnAb1-V3uI66Wqan8wwPKmB-5Ezg-chrvD_Sg=s240-no">
+        <img style="width: 100px; margin-top: 80px;" src="https://s5.gifyu.com/images/20453d5c971c78b_a.gif">
         <button class="btn btn-primary" type="submit" style="margin-top: 100px;" onclick="location.href = '$gurl';">Google Login</button>
       </div>
       EOF;
@@ -146,6 +146,7 @@ if (!$uid) {
 } else {
     console_log("uid: $uid");
 }
+$_SESSION["uid"] = $uid; // put uid in session
 
 // Insert log
 if ($_REQUEST['log']) {
@@ -164,9 +165,24 @@ $autoCats = getRows("select distinct category from logs where uid = $uid order b
 
 // body
 
+// customize for pi
+if ($gmail == 'atara.sun18@gmail.com') $gpic = 'https://i.ibb.co/DVvMD9K/IMG-2168.jpg';
+if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/20453d5c971c78b_a.gif';
+
+// net income
+$net_income = getSingle("select -sum(amount) from logs where uid=$uid and YEAR(date) = YEAR(CURRENT_DATE()) and MONTH(date) = MONTH(CURRENT_DATE())");
+if (!$net_income) $net_income = 0;
+$net_income_style = "";
+if ($net_income < 0) $net_income_style = "color: red";
+else $net_income_style = "color: green";
+
 echo <<<EOF
   <div class="container-fluid">
-    <div class='m-3'><img src='$gpic' style='width: 30px'> <p style='display: inline-block; margin-left: 10px;'> $gname [$gmail]</p></div>
+    <div class='m-3'>
+      <img src='$gpic' style='width: 30px'> 
+      <p style='display: inline-block; margin-left: 10px;'> $gname [$gmail]</p>
+      <p style='display: inline-block; float: right; $net_income_style'> 小钱钱: $net_income </p>
+    </div>
 
     <ul class="nav nav-tabs m-3" id="myTab" role="tablist">
       <li class="nav-item">
@@ -174,6 +190,9 @@ echo <<<EOF
       </li>
       <li class="nav-item">
         <a class="nav-link" id="summary-tab" data-toggle="tab" href="#summary" role="tab" aria-controls="summary" aria-selected="false">Summary</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="recurr-tab" data-toggle="tab" href="#recurr" role="tab" aria-controls="recurr" aria-selected="false">Recurr</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" id="stats-tab" data-toggle="tab" href="#stats" role="tab" aria-controls="stats" aria-selected="false">Stats</a>
@@ -184,13 +203,13 @@ echo <<<EOF
         <form action='\' method="post" autocomplete="off">    
           <div class="form-row">
             <div class="col"> 
-              <input type="text" id="form-log" class="form-control" name=log placeholder="Log">
+              <input type="text" id="form-log" class="form-control" name=log placeholder="Log" required="true">
             </div>
             <div class="col"> 
-              <input type="text" id="form-cat" class="form-control" name=category placeholder="Category">
+              <input type="text" id="form-cat" class="form-control" name=category placeholder="Category" required="true">
             </div>    
             <div class="col"> 
-              <input type="number" step="any" class="form-control" name=amount placeholder="Amount">
+              <input type="number" step="any" class="form-control" name=amount placeholder="Amount" required="true">
             </div>
 
             <button type=submit class="btn btn-primary">Log</button>      
@@ -200,7 +219,7 @@ EOF;
 
 // Render logs
 
-$res = query("select * from logs where uid = $uid order by date desc");
+$res = query("select * from logs where uid = $uid and YEAR(date) = YEAR(CURRENT_DATE()) and MONTH(date) = MONTH(CURRENT_DATE()) order by date desc");
 print <<<EOF
 <table class="table m-3">
 <thead>
@@ -215,7 +234,7 @@ print <<<EOF
 
 EOF;
 while ($row = mysqli_fetch_assoc($res)) {
-  $uid = $row['uid'];
+  // $uid = $row['uid'];
   $log = htmlspecialchars($row['log']);
   $category = htmlspecialchars($row['category']);
   $amount = htmlspecialchars($row['amount']);
@@ -234,21 +253,24 @@ echo "</tbody>";
 echo "</table>";
 ?>
       </div>
-      <div class="tab-pane fade" id="summary" role="tabpanel" aria-labelledby="summary-tab">
+      <div class="tab-pane fade m-3" id="summary" role="tabpanel" aria-labelledby="summary-tab">
 <?php
 
 // Summary tab
+$dt = date('F Y');
 print <<<EOF
-<table class="table m-3">
+<h5>Summary for $dt</h5>
+<p style="$net_income_style">Net income: $net_income</p>
+<table class="table">
 <tbody>
 
 EOF;
 
 foreach($autoCats as $cat){
-
-  echo "<tr class='bg-primary' style='font-weight: bold;'><td>$cat</td><td></td></tr>";
+  echo "<tr><td></td><td></td></tr>";
+  echo "<tr class='table-primary' style='font-weight: bold;'><td>$cat</td><td></td></tr>";
   
-  $res = query("select category, log, sum(amount) as sum from logs where category='$cat' group by category, log");  
+  $res = query("select category, log, sum(amount) as sum from logs where category='$cat' and uid='$uid' group by category, log");  
   while ($row = mysqli_fetch_assoc($res)) {
     $s_sum = $row['sum'];
     $s_log = htmlspecialchars($row['log']);  
@@ -262,26 +284,95 @@ echo "</table>";
 
 ?>
       </div>
+      <div class="tab-pane fade" id="recurr" role="tabpanel" aria-labelledby="recurr-tab">
+<?php
+// Recurr Tab
+?>
+        <h5>Monthly Recurrents</h5>
+        <form id="recurr-form" autocomplete="off">    
+          <div class="form-row">
+            <div class="col"> 
+              <input type="text" class="form-control" id="rname" name=rname placeholder="Name" required="true">
+            </div>
+            <div class="col"> 
+              <input type="number" step="any" class="form-control" id="ramount" name=ramount placeholder="Amount" required="true">
+            </div>
+            <button type=submit class="btn btn-primary">Add Recurrent</button>      
+          </div>
+          <!-- <input type="hidden" id=uid name=uid value="<?php echo $uid; ?>">  -->
+        </form>
+        <div id="recurr-list"></div>
+      </div>
       <div class="tab-pane fade" id="stats" role="tabpanel" aria-labelledby="stats-tab">TODO Stats</div>
     </div>
 </div>
 
 <?php mysqli_close($conn); ?>
 
-<!-- autocomplete -->
+
 <script>
 $(function() {
-  var logs = <?php echo json_encode($autoLogs);?>;  
-  
-  var cats = <?php echo json_encode($autoCats);?>;
-  
-  $("#form-log").autocomplete({
-    source: logs
-  });
-  $("#form-cat").autocomplete({
-    source: cats
-  });
+    // Autocomplete
+    var logs = <?php echo json_encode($autoLogs);?>;  
+    var cats = <?php echo json_encode($autoCats);?>;
+    
+    $("#form-log").autocomplete({
+      source: logs
+    });
+    $("#form-cat").autocomplete({
+      source: cats
+    });
+
+    // Fill Recurrs
+    getRecurr();
 });
+
+
+function getRecurr() {
+    // Get Recurr contents
+    $.ajax({
+      url: "dbfunc.php",
+      type: "get",
+      data: "func=getRecurr"
+    }).done(function (response, textStatus, jqXHR){
+        // console.log(response);
+        $("#recurr-list").html(response);
+    }).fail(function (jqXHR, textStatus, errorThrown){
+        // Show error
+        console.log("Error getting recurr list");
+        console.log(errorThrown);
+    })
+}
+
+// Post method for Recurr tab
+$("#recurr-form").submit(function(event) {
+    var ajaxRequest;
+
+    /* Stop form from submitting normally */
+    event.preventDefault();
+
+    /* Get from elements values */
+    var values = $(this).serialize();
+    // var rname = $("#rname").val();
+    // var ramount = $("#ramount").val();
+
+    // Insert Recurr record
+    $.ajax({
+        url: "dbfunc.php",
+        type: "post",
+        data: values + "&func=insertRecurr"
+    }).done(function (response, textStatus, jqXHR){
+        console.log(response);
+        getRecurr();
+    }).fail(function (){
+        // Show error
+        console.log("Error post to dbfunc.php");
+        console.log(errorThrown);
+    })
+
+
+});
+
 </script>
 
 </html>
