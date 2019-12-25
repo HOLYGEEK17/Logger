@@ -345,16 +345,16 @@ function getRecurr() {
 }
 
 // Post method for Recurr tab
-$("#recurr-form").submit(function(event) {
-    var ajaxRequest;
-
+$("#recurr-form").submit(function(event) {    
     /* Stop form from submitting normally */
     event.preventDefault();
 
     /* Get from elements values */
     var values = $(this).serialize();
-    // var rname = $("#rname").val();
-    // var ramount = $("#ramount").val();
+    
+    // clean form
+    $("#rname").val('');
+    $("#ramount").val('');
 
     // Insert Recurr record
     $.ajax({
