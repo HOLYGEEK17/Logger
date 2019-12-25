@@ -133,6 +133,7 @@ function insertRecurr() {
 
 function getRecurr() {
     // get all recurrence records
+    global $uid;
     $res = query("select * from recurrs where uid = '$uid' order by ramount desc");
     print <<<EOF
     <table class="table">

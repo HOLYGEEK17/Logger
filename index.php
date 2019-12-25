@@ -159,7 +159,13 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/20453
 
 // net income
 $net_income = getSingle("select -sum(amount) from logs where uid=$uid and YEAR(date) = YEAR(CURRENT_DATE()) and MONTH(date) = MONTH(CURRENT_DATE())");
+$recurr_sum = getSingle("select -sum(ramount) from recurrs where uid=$uid;");
+
 if (!$net_income) $net_income = 0;
+if (!$recurr_sum) $recurr_sum = 0;
+
+$net_income += $recurr_sum;
+
 $net_income_style = "";
 if ($net_income < 0) $net_income_style = "color: red";
 else $net_income_style = "color: green";
