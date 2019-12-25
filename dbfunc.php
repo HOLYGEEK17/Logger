@@ -58,9 +58,66 @@ switch ($func) {
     case 'getRecurr':
         getRecurr();
         break;
+    case 'insertLog';
+        insertLog();
+        break;
+    case 'getLog';
+        getLog();
+        break;
 }
 
 // DB Functions
+
+function insertLog() {
+    global $uid;
+
+    $log = $_REQUEST['llog'];
+    $category = $_REQUEST['lcategory'];
+    $amount = $_REQUEST['lamount'];
+
+    date_default_timezone_set('america/new_york');
+    $date = Date("Y-m-d H:i:s");
+
+    $sql = "insert into logs (uid, log, category, amount, date) values ('$uid', '$log', '$category', '$amount', '$date')";
+    query($sql);
+    echo "success";
+}
+
+function getLog() {
+    global $uid;
+    $res = query("select * from logs where uid = '$uid' and YEAR(date) = YEAR(CURRENT_DATE()) and MONTH(date) = MONTH(CURRENT_DATE()) order by date desc");
+    print <<<EOF
+    <table class="table">
+    <thead>
+    <tr>
+    <th scope="col">Log</th>
+    <th scope="col">Category</th>
+    <th scope="col">Amount</th>
+    <th scope="col">Date</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    EOF;
+    while ($row = mysqli_fetch_assoc($res)) {
+    // $uid = $row['uid'];
+    $log = htmlspecialchars($row['log']);
+    $category = htmlspecialchars($row['category']);
+    $amount = htmlspecialchars($row['amount']);
+    $date = $row['date'];
+
+    print <<<EOF
+    <tr>
+        <td>$log</td>
+        <td>$category</td>
+        <td align="right">$amount</td>
+        <td>$date</td>
+    </tr>
+    EOF;
+    }
+    echo "</tbody>";
+    echo "</table>";
+}
 
 function insertRecurr() {
     $rname = $_REQUEST['rname'];
@@ -69,6 +126,7 @@ function insertRecurr() {
     // echo "<p>Setup recurr with $rname of amount $ramount for user $uid</p>";
 
     // insert into recurr table
+    global $uid;
     query("insert into recurrs (uid, rname, ramount) values ('$uid', '$rname', '$ramount')");
     echo "success";
 }

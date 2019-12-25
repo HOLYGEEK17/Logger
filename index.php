@@ -2,8 +2,7 @@
 
 <!DOCTYPE html>
 <head>
-  <link rel="stylesheet" href="styles.css">
-  <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous"> -->
+  <link rel="stylesheet" href="styles.css">  
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.4.1/darkly/bootstrap.min.css">
   <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
@@ -148,17 +147,6 @@ if (!$uid) {
 }
 $_SESSION["uid"] = $uid; // put uid in session
 
-// Insert log
-if ($_REQUEST['log']) {
-  $log = mysqli_real_escape_string($conn, $_REQUEST['log']);
-  $category = mysqli_real_escape_string($conn, $_REQUEST['category']);
-  $amount = mysqli_real_escape_string($conn, $_REQUEST['amount']);
-
-  date_default_timezone_set('america/new_york');
-  $date = Date("Y-m-d H:i:s");
-  query("insert into logs (uid, log, category, amount, date) values ($uid, '$log', '$category', '$amount', '$date')");
-}
-
 // Auto-complete paramters
 $autoLogs = getRows("select distinct log from logs where uid = $uid order by log", "log");
 $autoCats = getRows("select distinct category from logs where uid = $uid order by category", "category");
@@ -200,57 +188,23 @@ echo <<<EOF
     </ul>
     <div class="tab-content m-3" id="myTabContent">
       <div class="tab-pane fade show active" id="log" role="tabpanel" aria-labelledby="log-tab">
-        <form action='\' method="post" autocomplete="off">    
+        <form id="log-form" autocomplete="off">    
           <div class="form-row">
             <div class="col"> 
-              <input type="text" id="form-log" class="form-control" name=log placeholder="Log" required="true">
+              <input type="text" class="form-control" id=llog name=llog placeholder="Log" required="true">
             </div>
             <div class="col"> 
-              <input type="text" id="form-cat" class="form-control" name=category placeholder="Category" required="true">
+              <input type="text" class="form-control" id=lcategory name=lcategory placeholder="Category" required="true">
             </div>    
             <div class="col"> 
-              <input type="number" step="any" class="form-control" name=amount placeholder="Amount" required="true">
+              <input type="number" step="any" class="form-control" id=lamount name=lamount placeholder="Amount" required="true">
             </div>
 
             <button type=submit class="btn btn-primary">Log</button>      
           </div>
         </form>
+        <div id='log-list'></div>
 EOF;
-
-// Render logs
-
-$res = query("select * from logs where uid = $uid and YEAR(date) = YEAR(CURRENT_DATE()) and MONTH(date) = MONTH(CURRENT_DATE()) order by date desc");
-print <<<EOF
-<table class="table m-3">
-<thead>
-<tr>
-  <th scope="col">Log</th>
-  <th scope="col">Category</th>
-  <th scope="col">Amount</th>
-  <th scope="col">Date</th>
-</tr>
-</thead>
-<tbody>
-
-EOF;
-while ($row = mysqli_fetch_assoc($res)) {
-  // $uid = $row['uid'];
-  $log = htmlspecialchars($row['log']);
-  $category = htmlspecialchars($row['category']);
-  $amount = htmlspecialchars($row['amount']);
-  $date = $row['date'];
-
-  print <<<EOF
-  <tr>
-    <td>$log</td>
-    <td>$category</td>
-    <td align="right">$amount</td>
-    <td>$date</td>
-  </tr>
-  EOF;
-}
-echo "</tbody>";
-echo "</table>";
 ?>
       </div>
       <div class="tab-pane fade m-3" id="summary" role="tabpanel" aria-labelledby="summary-tab">
@@ -323,12 +277,14 @@ $(function() {
       source: cats
     });
 
-    // Fill Recurrs
+    // Fill contents
+    getLog();
     getRecurr();
 });
 
 
 function getRecurr() {
+    $("#recurr-list").html(`<div class="text-center"><img style="width: 200px; margin-top: 80px;" src="https://s5.gifyu.com/images/50453c5553eeb38_a.gif"></div>`);
     // Get Recurr contents
     $.ajax({
       url: "dbfunc.php",
@@ -340,6 +296,23 @@ function getRecurr() {
     }).fail(function (jqXHR, textStatus, errorThrown){
         // Show error
         console.log("Error getting recurr list");
+        console.log(errorThrown);
+    })
+}
+
+function getLog() {
+    $("#log-list").html(`<div class="text-center"><img style="width: 200px; margin-top: 80px;" src="https://s5.gifyu.com/images/50453c5553eeb38_a.gif"></div>`);
+    // Get Log contents
+    $.ajax({
+      url: "dbfunc.php",
+      type: "get",
+      data: "func=getLog"
+    }).done(function (response, textStatus, jqXHR){
+        // console.log(response);
+        $("#log-list").html(response);
+    }).fail(function (jqXHR, textStatus, errorThrown){
+        // Show error
+        console.log("Error getting log list");
         console.log(errorThrown);
     })
 }
@@ -369,8 +342,34 @@ $("#recurr-form").submit(function(event) {
         console.log("Error post to dbfunc.php");
         console.log(errorThrown);
     })
+});
 
+// Post method for Log tab
+$("#log-form").submit(function(event) {    
+    /* Stop form from submitting normally */
+    event.preventDefault();
 
+    /* Get from elements values */
+    var values = $(this).serialize();
+    
+    // clean form
+    $("#llog").val('');
+    $("#lcategory").val('');
+    $("#lamount").val('');
+
+    // Insert Recurr record
+    $.ajax({
+        url: "dbfunc.php",
+        type: "post",
+        data: values + "&func=insertLog"
+    }).done(function (response, textStatus, jqXHR){
+        console.log(response);
+        getLog();
+    }).fail(function (){
+        // Show error
+        console.log("Error post to dbfunc.php");
+        console.log(errorThrown);
+    })
 });
 
 </script>
