@@ -161,27 +161,13 @@ if ($gmail == 'atara.sun18@gmail.com') $gpic = 'https://s5.gifyu.com/images/ezgi
 if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/20453d5c971c78b_a.gif';
 // if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/ezgif.com-crop3ce89edfc94b9e98.gif';
 
-  
-
-// net income
-$net_income = getSingle("select -sum(amount) from logs where uid=$uid and YEAR(date) = YEAR(CURRENT_DATE()) and MONTH(date) = MONTH(CURRENT_DATE())");
-$recurr_sum = getSingle("select -sum(ramount) from recurrs where uid=$uid;");
-
-if (!$net_income) $net_income = 0;
-if (!$recurr_sum) $recurr_sum = 0;
-
-$net_income += $recurr_sum;
-
-$net_income_style = "";
-if ($net_income < 0) $net_income_style = "color: orangered";
-else $net_income_style = "color: green";
 
 echo <<<EOF
   <div class="container-fluid">
     <div class='m-3'>
       <img src='$gpic' style='width: 30px'> 
       <p style='display: inline-block; margin-left: 10px;'> $gname [$gmail]</p>
-      <p style='display: inline-block; float: right; $net_income_style'> 小钱钱: $net_income </p>
+      <p id='net-income' style='display: inline-block; float: right;'> 小钱钱: ~ </p>
     </div>
 
     <ul class="nav nav-tabs m-3" id="myTab" role="tablist">
@@ -225,8 +211,7 @@ EOF;
 // Summary tab
 $dt = date('F Y');
 print <<<EOF
-<h5>Summary for $dt</h5>
-<p style="$net_income_style">Net income: $net_income</p>
+<h5 class="mt-3 mb-3">Summary for $dt</h5>
 <table class="table">
 <tbody>
 
@@ -299,12 +284,33 @@ $(function() {
     // Fill contents
     getLog();
     getRecurr();
+    setNetIncome();
 });
 
 // Tooltips
 $(function () {
     $('[data-toggle="tooltip"]').tooltip()
 })
+
+function setNetIncome() {
+  let netIncome = 0;
+  $.ajax({
+      url: "dbfunc.php",
+      data: "func=getNetIncome"
+    }).done(function (response, textStatus, jqXHR){      
+        netIncome = parseFloat(response);
+        $("#net-income").text("小钱钱: " + response);
+        if (netIncome < 0) {
+            $("#net-income").css("color", "orangered");
+        } else {
+            $("#net-income").css("color", "green");
+        }
+    }).fail(function (jqXHR, textStatus, errorThrown){
+        // Show error
+        console.log("Error getting recurr list");
+        console.log(errorThrown);
+  })  
+}
 
 function getRecurr() {
     $("#recurr-list").html(`<div class="text-center"><img style="width: 200px; margin-top: 80px;" src="https://s5.gifyu.com/images/50453c5553eeb38_a.gif"></div>`);
@@ -351,6 +357,7 @@ function deleteLog(row) {
     }).done(function (response, textStatus, jqXHR){
         console.log(response);
         $(row).hide();
+        setNetIncome();
     }).fail(function (jqXHR, textStatus, errorThrown){
         // Show error
         alert(errorThrown);
@@ -369,6 +376,7 @@ function deleteRecurr(row) {
     }).done(function (response, textStatus, jqXHR){
         console.log(response);
         $(row).hide();
+        setNetIncome();
     }).fail(function (jqXHR, textStatus, errorThrown){
         // Show error
         alert(errorThrown);
@@ -395,6 +403,7 @@ $("#recurr-form").submit(function(event) {
     }).done(function (response, textStatus, jqXHR){
         console.log(response);
         getRecurr();
+        setNetIncome();
     }).fail(function (){
         // Show error
         console.log("Error post to dbfunc.php");
@@ -423,6 +432,7 @@ $("#log-form").submit(function(event) {
     }).done(function (response, textStatus, jqXHR){
         console.log(response);
         getLog();
+        setNetIncome();
     }).fail(function (){
         // Show error
         console.log("Error post to dbfunc.php");

@@ -70,9 +70,25 @@ switch ($func) {
     case 'deleteRec';
         deleteRec();
         break;
+    case 'getNetIncome';
+        getNetIncome();
+        break;
 }
 
 // DB Functions
+
+function getNetIncome() {
+    global $uid;
+    $net_income = getSingle("select -sum(amount) from logs where uid=$uid and YEAR(date) = YEAR(CURRENT_DATE()) and MONTH(date) = MONTH(CURRENT_DATE())");
+    $recurr_sum = getSingle("select -sum(ramount) from recurrs where uid=$uid;");
+
+    if (!$net_income) $net_income = 0;
+    if (!$recurr_sum) $recurr_sum = 0;
+
+    $net_income += $recurr_sum;
+
+    echo $net_income;
+}
 
 function insertLog() {
     global $uid;
