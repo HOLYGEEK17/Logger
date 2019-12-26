@@ -149,10 +149,6 @@ if (!$uid) {
 }
 $_SESSION["uid"] = $uid; // put uid in session
 
-// Auto-complete paramters
-$autoLogs = getRows("select distinct log from logs where uid = $uid order by log", "log");
-$autoCats = getRows("select distinct category from logs where uid = $uid order by category", "category");
-
 // body
 
 // customize for pi
@@ -206,41 +202,7 @@ EOF;
 ?>
       </div>
       <div class="tab-pane fade" id="summary" role="tabpanel" aria-labelledby="summary-tab">
-<?php
-
-// Summary tab
-$dt = date('F Y');
-print <<<EOF
-<h5 class="mt-3 mb-3">Summary for $dt</h5>
-<table class="table">
-<tbody>
-
-EOF;
-
-foreach($autoCats as $cat){
-  echo "<tr><td></td><td></td></tr>";
-  echo "<tr style='font-weight: bold;font-size: large;'><td>$cat</td><td></td></tr>";
-  
-  $res = query("select category, log, sum(amount) as sum from logs where category='$cat' and uid='$uid' group by category, log");  
-  while ($row = mysqli_fetch_assoc($res)) {
-    $s_sum = $row['sum'];
-    $s_log = htmlspecialchars($row['log']);  
-
-    // process sum
-    $sum_display = "style='color: orangered;'";
-    if ($s_sum < 0) {
-        $s_sum *= -1;
-        $sum_display = "style='color: green;'";
-    }
-        
-    echo "<tr><td>$s_log</td><td align='right' $sum_display>$s_sum</td></tr>";    
-  }
-}
-
-echo "</tbody>";
-echo "</table>";
-
-?>
+        <div id="summary"></div>
       </div>
       <div class="tab-pane fade" id="recurr" role="tabpanel" aria-labelledby="recurr-tab">
 <?php
@@ -271,19 +233,12 @@ echo "</table>";
 <script>
 $(function() {
     // Autocomplete
-    var logs = <?php echo json_encode($autoLogs);?>;  
-    var cats = <?php echo json_encode($autoCats);?>;
-    
-    $("#llog").autocomplete({
-      source: logs
-    });
-    $("#lcategory").autocomplete({
-      source: cats
-    });
+    setAutocomplete();
 
     // Fill contents
     getLog();
     getRecurr();
+    getSummary();
     setNetIncome();
 });
 
@@ -291,6 +246,35 @@ $(function() {
 $(function () {
     $('[data-toggle="tooltip"]').tooltip()
 })
+
+function setAutocomplete() {
+    var logs;
+    var cats;
+
+    $.ajax({
+        url: "dbfunc.php",
+        dataType:"json",
+        data: "func=getAutoLogs"
+      }).done(function (response, textStatus, jqXHR){   
+        $("#llog").autocomplete({
+          source: response
+        });
+      }).fail(function (jqXHR, textStatus, errorThrown){
+          console.log(errorThrown);
+    }) 
+
+    $.ajax({
+        url: "dbfunc.php",
+        dataType:"json",
+        data: "func=getAutoCats"
+      }).done(function (response, textStatus, jqXHR){   
+        $("#lcategory").autocomplete({
+          source: response
+        });
+      }).fail(function (jqXHR, textStatus, errorThrown){
+          console.log(errorThrown);
+    })
+}
 
 function setNetIncome() {
   let netIncome = 0;
@@ -310,6 +294,21 @@ function setNetIncome() {
         console.log("Error getting recurr list");
         console.log(errorThrown);
   })  
+}
+
+function getSummary() {
+    $("#summary").html(`<div class="text-center"><img style="width: 200px; margin-top: 80px;" src="https://s5.gifyu.com/images/50453c5553eeb38_a.gif"></div>`);
+    $.ajax({
+        url: "dbfunc.php",
+        data: "func=getSummary"
+      }).done(function (response, textStatus, jqXHR){
+          // console.log(response);
+          $("#summary").html(response);
+      }).fail(function (jqXHR, textStatus, errorThrown){
+          // Show error
+          console.log("Error getting recurr list");
+          console.log(errorThrown);
+      })
 }
 
 function getRecurr() {
@@ -346,8 +345,7 @@ function getLog() {
     })
 }
 
-function deleteLog(row) {
-    console.log(row);    
+function deleteLog(row) {    
     let lid = row.id.replace("log_", "");
     console.log(lid);
 
@@ -358,6 +356,8 @@ function deleteLog(row) {
         console.log(response);
         $(row).hide();
         setNetIncome();
+        getSummary();
+        setAutocomplete();
     }).fail(function (jqXHR, textStatus, errorThrown){
         // Show error
         alert(errorThrown);
@@ -433,6 +433,8 @@ $("#log-form").submit(function(event) {
         console.log(response);
         getLog();
         setNetIncome();
+        getSummary();
+        setAutocomplete();
     }).fail(function (){
         // Show error
         console.log("Error post to dbfunc.php");

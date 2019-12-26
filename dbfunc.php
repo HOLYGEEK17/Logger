@@ -73,9 +73,30 @@ switch ($func) {
     case 'getNetIncome';
         getNetIncome();
         break;
+    case 'getSummary';
+        getSummary();
+        break;
+    case 'getAutoLogs';
+        getAutoLogs();
+        break;
+    case 'getAutoCats';
+        getAutoCats();
+        break;
 }
 
 // DB Functions
+
+function getAutoLogs() {
+    global $uid;
+    $autoLogs = getRows("select distinct log from logs where uid = $uid order by log", "log");
+    echo json_encode($autoLogs);
+}
+
+function getAutoCats() {
+    global $uid;
+    $autoCats = getRows("select distinct category from logs where uid = $uid order by category", "category");
+    echo json_encode($autoCats);
+}
 
 function getNetIncome() {
     global $uid;
@@ -88,6 +109,39 @@ function getNetIncome() {
     $net_income += $recurr_sum;
 
     echo $net_income;
+}
+
+function getSummary() {
+    global $uid;
+    $autoCats = getRows("select distinct category from logs where uid = $uid order by category", "category");
+    $dt = date('F Y');
+
+    echo "<h5 class='mt-3 mb-3'>Summary for $dt</h5>";
+    echo "<table class='table'>";
+    echo "<tbody>";
+
+    foreach($autoCats as $cat){
+        echo "<tr><td></td><td></td></tr>";
+        echo "<tr style='font-weight: bold;font-size: large;'><td>$cat</td><td></td></tr>";
+        
+        $res = query("select category, log, sum(amount) as sum from logs where category='$cat' and uid='$uid' group by category, log");  
+        while ($row = mysqli_fetch_assoc($res)) {
+          $s_sum = $row['sum'];
+          $s_log = htmlspecialchars($row['log']);  
+      
+          // process sum
+          $sum_display = "style='color: orangered;'";
+          if ($s_sum < 0) {
+              $s_sum *= -1;
+              $sum_display = "style='color: green;'";
+          }
+              
+          echo "<tr><td>$s_log</td><td align='right' $sum_display>$s_sum</td></tr>";    
+        }
+      }
+      
+      echo "</tbody>";
+      echo "</table>";
 }
 
 function insertLog() {
