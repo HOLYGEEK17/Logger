@@ -67,6 +67,9 @@ switch ($func) {
     case 'deleteLog';
         deleteLog();
         break;
+    case 'deleteRec';
+        deleteRec();
+        break;
 }
 
 // DB Functions
@@ -138,6 +141,13 @@ function deleteLog() {
     echo "deleted";
 }
 
+function deleteRec() {
+    $rid = $_REQUEST['rid'];
+    global $uid;
+    query("delete from recurrs where uid = '$uid' and rid = '$rid'");
+    echo "deleted";
+}
+
 function insertRecurr() {
     $rname = $_REQUEST['rname'];
     $ramount = $_REQUEST['ramount'];
@@ -158,23 +168,33 @@ function getRecurr() {
     <table class="table">
     <thead>
     <tr>
-    <th scope="col">Name</th>
-    <th scope="col">Amount</th>
+        <th scope="col">Name</th>
+        <th scope="col">Amount</th>
+        <th scope="col"></th>
     </tr>
     </thead>
     <tbody>
 
     EOF;
     while ($row = mysqli_fetch_assoc($res)) {
-    $name = htmlspecialchars($row['rname']);
-    $amount = htmlspecialchars($row['ramount']);
+        $rid = $row['rid'];
+        $name = htmlspecialchars($row['rname']);
+        $amount = htmlspecialchars($row['ramount']);
 
-    print <<<EOF
-    <tr>
-        <td>$name</td>
-        <td align="right">$amount</td>
-    </tr>
-    EOF;
+        // process amount
+        $amount_display = "style='color: orangered;'";
+        if ($amount < 0) {
+            $amount *= -1;
+            $amount_display = "style='color: green;'";
+        }
+
+        print <<<EOF
+        <tr id="rec_$rid">
+            <td>$name</td>
+            <td align="right" $amount_display>$amount</td>
+            <td style="color: grey; cursor: pointer; font-size: small;" onclick="deleteRecurr(this.parentElement)">x</td>
+        </tr>
+        EOF;
     }
     echo "</tbody>";
     echo "</table>";

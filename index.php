@@ -357,6 +357,24 @@ function deleteLog(row) {
     })
 }
 
+
+function deleteRecurr(row) {
+    console.log(row);    
+    let lid = row.id.replace("rec_", "");
+    console.log(lid);
+
+    $.ajax({
+      url: "dbfunc.php",
+      data: "func=deleteRec&rid=" + lid
+    }).done(function (response, textStatus, jqXHR){
+        console.log(response);
+        $(row).hide();
+    }).fail(function (jqXHR, textStatus, errorThrown){
+        // Show error
+        alert(errorThrown);
+    })
+}
+
 // Post method for Recurr tab
 $("#recurr-form").submit(function(event) {    
     /* Stop form from submitting normally */
