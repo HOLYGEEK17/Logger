@@ -64,6 +64,9 @@ switch ($func) {
     case 'getLog';
         getLog();
         break;
+    case 'deleteLog';
+        deleteLog();
+        break;
 }
 
 // DB Functions
@@ -94,13 +97,14 @@ function getLog() {
     <th scope="col">Category</th>
     <th scope="col">Amount</th>
     <th scope="col">Date</th>
+    <th scope="col"></th>
     </tr>
     </thead>
     <tbody>
 
     EOF;
     while ($row = mysqli_fetch_assoc($res)) {
-    // $uid = $row['uid'];
+    $lid = $row['lid'];
     $log = htmlspecialchars($row['log']);
     $category = htmlspecialchars($row['category']);
     $amount = htmlspecialchars($row['amount']);
@@ -114,16 +118,24 @@ function getLog() {
     }
 
     print <<<EOF
-    <tr>
+    <tr id="log_$lid">
         <td>$log</td>
         <td>$category</td>
         <td align="right" $amount_display>$amount</td>
         <td>$date</td>
+        <td style="color: grey; cursor: pointer; font-size: small;" onclick="deleteLog(this.parentElement)">x</td>
     </tr>
     EOF;
     }
     echo "</tbody>";
     echo "</table>";
+}
+
+function deleteLog() {
+    $lid = $_REQUEST['lid'];
+    global $uid;
+    query("delete from logs where uid = '$uid' and lid = '$lid'");
+    echo "deleted";
 }
 
 function insertRecurr() {

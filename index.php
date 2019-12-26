@@ -9,6 +9,8 @@
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 
+  <title>Logger</title>
+  <link rel="icon" href="https://i.ibb.co/c3cNLQ7/billd3.png">
 </head>
 
 <body>
@@ -155,7 +157,11 @@ $autoCats = getRows("select distinct category from logs where uid = $uid order b
 
 // customize for pi
 if ($gmail == 'atara.sun18@gmail.com') $gpic = 'https://i.ibb.co/DVvMD9K/IMG-2168.jpg';
+if ($gmail == 'atara.sun18@gmail.com') $gpic = 'https://s5.gifyu.com/images/ezgif.com-crop3ce89edfc94b9e98.gif';
 if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/20453d5c971c78b_a.gif';
+// if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/ezgif.com-crop3ce89edfc94b9e98.gif';
+
+  
 
 // net income
 $net_income = getSingle("select -sum(amount) from logs where uid=$uid and YEAR(date) = YEAR(CURRENT_DATE()) and MONTH(date) = MONTH(CURRENT_DATE())");
@@ -331,6 +337,23 @@ function getLog() {
         // Show error
         console.log("Error getting log list");
         console.log(errorThrown);
+    })
+}
+
+function deleteLog(row) {
+    console.log(row);    
+    let lid = row.id.replace("log_", "");
+    console.log(lid);
+
+    $.ajax({
+      url: "dbfunc.php",
+      data: "func=deleteLog&lid=" + lid
+    }).done(function (response, textStatus, jqXHR){
+        console.log(response);
+        $(row).hide();
+    }).fail(function (jqXHR, textStatus, errorThrown){
+        // Show error
+        alert(errorThrown);
     })
 }
 
