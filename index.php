@@ -163,8 +163,7 @@ echo <<<EOF
     <div class='m-3'>
       <img src='$gpic' style='width: 30px'> 
       <p style='display: inline-block; margin-left: 10px;'> $gname [$gmail]</p>
-      <p id='net-income' style='display: inline-block; float: right;'> 小钱钱: </p>
-      <p data-toggle="popover" data-content="test">Click</p>
+      <p id='net-income' style='display: inline-block; float: right;'> </p>
     </div>
 
     <ul class="nav nav-tabs m-3" id="myTab" role="tablist">

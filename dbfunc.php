@@ -113,7 +113,7 @@ function getNetIncome() {
 
 function getSummary() {
     global $uid;
-    $autoCats = getRows("select distinct category from logs where uid = $uid order by category", "category");
+    $autoCats = getRows("select category, sum(amount) from logs where uid = $uid group by category order by sum(amount) desc;", "category");
     $dt = date('F Y');
 
     echo "<h5 class='mt-3 mb-3'>Summary for $dt</h5>";
@@ -121,7 +121,7 @@ function getSummary() {
     echo "<tbody>";
 
     foreach($autoCats as $cat){
-        echo "<tr><td></td><td style='width: 100%'></td><td></td></tr>";
+        echo "<tr><td></td><td style='width: 400px'></td><td></td></tr>";
         $catSum = getSingle("select sum(amount) from logs where category='$cat' and uid='$uid' and YEAR(date) = YEAR(CURRENT_DATE()) and MONTH(date) = MONTH(CURRENT_DATE())");
         echo "<tr style='font-weight: bold;font-size: large;'><td>$cat</td><td></td><td align='right'>$catSum</td></tr>";
         
