@@ -121,10 +121,11 @@ function getSummary() {
     echo "<tbody>";
 
     foreach($autoCats as $cat){
-        echo "<tr><td></td><td></td></tr>";
-        echo "<tr style='font-weight: bold;font-size: large;'><td>$cat</td><td></td></tr>";
+        echo "<tr><td></td><td style='width: 100%'></td><td></td></tr>";
+        $catSum = getSingle("select sum(amount) from logs where category='$cat' and uid='$uid' and YEAR(date) = YEAR(CURRENT_DATE()) and MONTH(date) = MONTH(CURRENT_DATE())");
+        echo "<tr style='font-weight: bold;font-size: large;'><td>$cat</td><td></td><td align='right'>$catSum</td></tr>";
         
-        $res = query("select category, log, sum(amount) as sum from logs where category='$cat' and uid='$uid' group by category, log");  
+        $res = query("select category, log, sum(amount) as sum from logs where category='$cat' and uid='$uid' and YEAR(date) = YEAR(CURRENT_DATE()) and MONTH(date) = MONTH(CURRENT_DATE()) group by category, log");  
         while ($row = mysqli_fetch_assoc($res)) {
           $s_sum = $row['sum'];
           $s_log = htmlspecialchars($row['log']);  
@@ -135,8 +136,17 @@ function getSummary() {
               $s_sum *= -1;
               $sum_display = "style='color: green;'";
           }
+
+          // Get summary details
+          $sdetail_str = "";
+          $sdetail = query("select amount, date from logs where uid='$uid' and category='$cat' and log='$s_log' and YEAR(date) = YEAR(CURRENT_DATE()) and MONTH(date) = MONTH(CURRENT_DATE()) order by date");  
+          while ($srow = mysqli_fetch_assoc($sdetail)) {
+              $damount = $srow['amount'];
+              $ddate = $srow['date'];          
+              $sdetail_str .= "$$damount   spent@$ddate\n";    
+          }
               
-          echo "<tr><td>$s_log</td><td align='right' $sum_display>$s_sum</td></tr>";    
+          echo "<tr><td style='cursor: pointer' data-toggle='popover' data-placement='right' data-content='$sdetail_str'>$s_log</td><td></td><td align='right' $sum_display>$s_sum</td></tr>";    
         }
       }
       

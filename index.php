@@ -163,7 +163,8 @@ echo <<<EOF
     <div class='m-3'>
       <img src='$gpic' style='width: 30px'> 
       <p style='display: inline-block; margin-left: 10px;'> $gname [$gmail]</p>
-      <p id='net-income' style='display: inline-block; float: right;'> 小钱钱: ~ </p>
+      <p id='net-income' style='display: inline-block; float: right;'> 小钱钱: </p>
+      <p data-toggle="popover" data-content="test">Click</p>
     </div>
 
     <ul class="nav nav-tabs m-3" id="myTab" role="tablist">
@@ -223,7 +224,10 @@ EOF;
         </form>
         <div id="recurr-list"></div>
       </div>
-      <div class="tab-pane fade" id="stats" role="tabpanel" aria-labelledby="stats-tab">TODO Stats</div>
+      <div class="tab-pane fade" id="stats" role="tabpanel" aria-labelledby="stats-tab">
+        <p>施工中...</p>
+        <p><img style="width: 200px; margin-top: 10px;" src="https://s5.gifyu.com/images/16be4c1a9ebdc0db80.gif"></p>
+      </div>
     </div>
 </div>
 
@@ -232,19 +236,29 @@ EOF;
 
 <script>
 $(function() {
-    // Autocomplete
-    setAutocomplete();
-
     // Fill contents
     getLog();
     getRecurr();
     getSummary();
     setNetIncome();
+
+    // Autocomplete
+    setAutocomplete();
 });
 
 // Tooltips
 $(function () {
     $('[data-toggle="tooltip"]').tooltip()
+})
+$(document).ready(function(){ // Hide tooltips after click
+    $('[data-toggle="tooltip"]').click(function () {
+      $('[data-toggle="tooltip"]').tooltip("hide");
+    });
+});
+
+// Popovers
+$(function () {
+  $('[data-toggle="popover"]').popover()
 })
 
 function setAutocomplete() {
@@ -283,7 +297,7 @@ function setNetIncome() {
       data: "func=getNetIncome"
     }).done(function (response, textStatus, jqXHR){      
         netIncome = parseFloat(response);
-        $("#net-income").text("小钱钱: " + response);
+        $("#net-income").html("小钱钱: " + response);
         if (netIncome < 0) {
             $("#net-income").css("color", "orangered");
         } else {
@@ -303,7 +317,9 @@ function getSummary() {
         data: "func=getSummary"
       }).done(function (response, textStatus, jqXHR){
           // console.log(response);
-          $("#summary").html(response);
+          $("#summary").html(response);          
+          $('[data-toggle="popover"]').popover()
+
       }).fail(function (jqXHR, textStatus, errorThrown){
           // Show error
           console.log("Error getting recurr list");
@@ -442,6 +458,33 @@ $("#log-form").submit(function(event) {
     })
 });
 
+function toggleSummaryDetail(id) {
+  var arr = id.split("&&&");
+  if (arr.length != 3) return;
+  var dcat = arr[1];
+  var dlog = arr[2];
+
+  console.log("dcat: " + dcat + ", dlog: " + dlog);
+
+  $.ajax({
+      url: "dbfunc.php",
+      data: "func=getSummaryDetail&dcat=" + dcat + "&dlog=" + dlog
+    }).done(function (response, textStatus, jqXHR){
+        // console.log(response);
+
+        var target = document.getElementById(id);
+        $(target).popover({"placement": "right", "title": response});
+        $(target).popover('show');
+        // $(target).attr({"data-toggle": "popover", "data-placement": "right", "data-content": "test"});
+
+        // setNetIncome();
+        // getSummary();
+        // setAutocomplete();
+    }).fail(function (jqXHR, textStatus, errorThrown){
+        // Show error
+        alert(errorThrown);
+    })
+}
 </script>
 
 </html>
