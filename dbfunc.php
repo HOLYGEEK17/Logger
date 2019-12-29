@@ -1,6 +1,7 @@
 <?php 
 session_start();
 $uid = $_SESSION["uid"];
+if (!$uid) die();
 
 // DB connections
 $dbhost = 'localhost';
@@ -123,7 +124,7 @@ function getSummary() {
     foreach($autoCats as $cat){
         echo "<tr><td></td><td style='width: 400px'></td><td></td></tr>";
         $catSum = getSingle("select sum(amount) from logs where category='$cat' and uid='$uid' and YEAR(date) = YEAR(CURRENT_DATE()) and MONTH(date) = MONTH(CURRENT_DATE())");
-        echo "<tr style='font-weight: bold;font-size: large;'><td>$cat</td><td></td><td align='right'>$catSum</td></tr>";
+        echo "<tr style='font-weight: bold;'><td><h5>$cat</h5></td><td></td><td align='right'>$catSum</td></tr>";
         
         $res = query("select category, log, sum(amount) as sum from logs where category='$cat' and uid='$uid' and YEAR(date) = YEAR(CURRENT_DATE()) and MONTH(date) = MONTH(CURRENT_DATE()) group by category, log");  
         while ($row = mysqli_fetch_assoc($res)) {

@@ -9,6 +9,30 @@
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 
+  <style>
+
+  /* Extra small devices (portrait phones, less than 576px) */
+  /* No media query since this is the default in Bootstrap */
+
+  /* Small devices (landscape phones, 576px and up) */
+  /* @media (min-width: 576px) { html {font-size: 2rem;} } */
+
+  /* Medium devices (tablets, 768px and up) */
+  /* @media (min-width: 768px) { html {font-size: 1.5rem;} } */
+
+  /* Large devices (desktops, 992px and up) */
+  /* @media (min-width: 992px) { html {font-size: 1rem;} } */
+
+  /* Extra large devices (large desktops, 1200px and up) */
+  /* @media (min-width: 1200px) { html {font-size: 1rem;} } */
+
+  <?php
+      if (strstr($_SERVER['HTTP_USER_AGENT'],'iPhone')) {
+          echo "html {font-size: 2rem;}";
+      }
+  ?>
+  </style>
+
   <title>Logger</title>
   <link rel="icon" href="https://i.ibb.co/c3cNLQ7/billd3.png">
 </head>
@@ -156,14 +180,14 @@ if ($gmail == 'atara.sun18@gmail.com') $gpic = 'https://i.ibb.co/DVvMD9K/IMG-216
 if ($gmail == 'atara.sun18@gmail.com') $gpic = 'https://s5.gifyu.com/images/ezgif.com-crop3ce89edfc94b9e98.gif';
 if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/20453d5c971c78b_a.gif';
 // if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/ezgif.com-crop3ce89edfc94b9e98.gif';
+  ?>
 
 
-echo <<<EOF
   <div class="container-fluid">
     <div class='m-3'>
-      <img src='$gpic' style='width: 30px'> 
-      <p style='display: inline-block; margin-left: 10px;'> $gname [$gmail]</p>
-      <p id='net-income' style='display: inline-block; float: right;'> </p>
+      <img src='<?php echo $gpic; ?>' style='width: 30px'> 
+      <p style='display: inline-block; margin-left: 10px;'> <?php echo $gname; ?> [<?php echo $gmail; ?>]</p>
+      <p id='net-income' style='display: inline-block; float: right;'> </p>      
     </div>
 
     <ul class="nav nav-tabs m-3" id="myTab" role="tablist">
@@ -198,8 +222,6 @@ echo <<<EOF
           </div>
         </form>
         <div id='log-list'></div>
-EOF;
-?>
       </div>
       <div class="tab-pane fade" id="summary" role="tabpanel" aria-labelledby="summary-tab">
         <div id="summary"></div>
