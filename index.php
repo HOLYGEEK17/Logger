@@ -10,22 +10,6 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 
   <style>
-
-  /* Extra small devices (portrait phones, less than 576px) */
-  /* No media query since this is the default in Bootstrap */
-
-  /* Small devices (landscape phones, 576px and up) */
-  /* @media (min-width: 576px) { html {font-size: 2rem;} } */
-
-  /* Medium devices (tablets, 768px and up) */
-  /* @media (min-width: 768px) { html {font-size: 1.5rem;} } */
-
-  /* Large devices (desktops, 992px and up) */
-  /* @media (min-width: 992px) { html {font-size: 1rem;} } */
-
-  /* Extra large devices (large desktops, 1200px and up) */
-  /* @media (min-width: 1200px) { html {font-size: 1rem;} } */
-
   <?php
       $mobile = strstr($_SERVER['HTTP_USER_AGENT'],'iPhone');
       if ($mobile) echo "html {font-size: 2rem;}";
@@ -188,8 +172,9 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/20453
       <p style='display: inline-block; margin-left: 10px;'> <?php echo $gname; ?> [<?php echo $gmail; ?>]</p>
       <p id='net-income' style='display: inline-block; float: right;'> </p>      
     </div>
+    <div class='m-3' style='height:1px'></div>
 
-    <ul class="nav nav-pills m-3" id="myTab" role="tablist">
+    <ul class="nav nav-pills nav-fill m-3" id="myTab" role="tablist">
       <li class="nav-item">
         <a class="nav-link active" id="log-tab" data-toggle="pill" href="#log" role="tab" aria-controls="log" aria-selected="true">Log</a>
       </li>
@@ -317,7 +302,7 @@ function setNetIncome() {
       data: "func=getNetIncome"
     }).done(function (response, textStatus, jqXHR){      
         netIncome = parseFloat(response);
-        $("#net-income").html("小钱钱: " + response);
+        $("#net-income").html("<img src='https://i.ibb.co/tqgyqm3/piggy-bank.png' style='width: 30px; margin-right: 0.5rem; margin-bottom: 0.5rem;'><p style='display: inline-block;'>" + response + "</p>");
         if (netIncome < 0) {
             $("#net-income").css("color", "orangered");
         } else {
