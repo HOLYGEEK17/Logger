@@ -27,9 +27,8 @@
   /* @media (min-width: 1200px) { html {font-size: 1rem;} } */
 
   <?php
-      if (strstr($_SERVER['HTTP_USER_AGENT'],'iPhone')) {
-          echo "html {font-size: 2rem;}";
-      }
+      $mobile = strstr($_SERVER['HTTP_USER_AGENT'],'iPhone');
+      if ($mobile) echo "html {font-size: 2rem;}";
   ?>
   </style>
 
@@ -190,18 +189,18 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/20453
       <p id='net-income' style='display: inline-block; float: right;'> </p>      
     </div>
 
-    <ul class="nav nav-tabs m-3" id="myTab" role="tablist">
+    <ul class="nav nav-pills m-3" id="myTab" role="tablist">
       <li class="nav-item">
-        <a class="nav-link active" id="log-tab" data-toggle="tab" href="#log" role="tab" aria-controls="log" aria-selected="true">Log</a>
+        <a class="nav-link active" id="log-tab" data-toggle="pill" href="#log" role="tab" aria-controls="log" aria-selected="true">Log</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="summary-tab" data-toggle="tab" href="#summary" role="tab" aria-controls="summary" aria-selected="false">Summary</a>
+        <a class="nav-link" id="summary-tab" data-toggle="pill" href="#summary" role="tab" aria-controls="summary" aria-selected="false">Summary</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="recurr-tab" data-toggle="tab" href="#recurr" role="tab" aria-controls="recurr" aria-selected="false">Recurr</a>
+        <a class="nav-link" id="recurr-tab" data-toggle="pill" href="#recurr" role="tab" aria-controls="recurr" aria-selected="false">Recurr</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="stats-tab" data-toggle="tab" href="#stats" role="tab" aria-controls="stats" aria-selected="false">Stats</a>
+        <a class="nav-link" id="stats-tab" data-toggle="pill" href="#stats" role="tab" aria-controls="stats" aria-selected="false">Stats</a>
       </li>
     </ul>
     <div class="tab-content m-3" id="myTabContent">
