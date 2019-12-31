@@ -405,9 +405,9 @@ function deleteLog(row) {
 
 
 function deleteRecurr(row) {
-    console.log(row);    
+    // console.log(row);    
     let lid = row.id.replace("rec_", "");
-    console.log(lid);
+    // console.log(lid);
 
     $.ajax({
       url: "dbfunc.php",
@@ -440,7 +440,7 @@ $("#recurr-form").submit(function(event) {
         type: "post",
         data: values + "&func=insertRecurr"
     }).done(function (response, textStatus, jqXHR){
-        console.log(response);
+        // console.log(response);
         getRecurr();
         setNetIncome();
     }).fail(function (){

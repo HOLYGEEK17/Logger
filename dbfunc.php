@@ -157,9 +157,10 @@ function getSummary() {
 
 function insertLog() {
     global $uid;
+    global $conn;
 
-    $log = $_REQUEST['llog'];
-    $category = $_REQUEST['lcategory'];
+    $log = mysqli_real_escape_string($conn, $_REQUEST['llog']);
+    $category = mysqli_real_escape_string($conn, $_REQUEST['lcategory']);
     $amount = $_REQUEST['lamount'];
 
     date_default_timezone_set('america/new_york');
@@ -230,13 +231,15 @@ function deleteRec() {
 }
 
 function insertRecurr() {
-    $rname = $_REQUEST['rname'];
-    $ramount = $_REQUEST['ramount'];
+    global $uid;
+    global $conn;
+
+    $rname = mysqli_real_escape_string($conn, $_REQUEST['rname']);
+    $ramount = mysqli_real_escape_string($conn, $_REQUEST['ramount']);
 
     // echo "<p>Setup recurr with $rname of amount $ramount for user $uid</p>";
 
     // insert into recurr table
-    global $uid;
     query("insert into recurrs (uid, rname, ramount) values ('$uid', '$rname', '$ramount')");
     echo "success";
 }
