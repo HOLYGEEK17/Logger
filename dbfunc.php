@@ -196,8 +196,8 @@ function getLog() {
 
     // process amount
     $amount_display = "style='color: orangered;'";
-    if ($amount < 0) {
-        $amount *= -1;
+    if ($amount < 0) {        
+        $amount = number_format($amount * -1, 2);
         $amount_display = "style='color: green;'";
     }
 

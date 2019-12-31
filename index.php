@@ -76,16 +76,16 @@ if (!$_SESSION["gid"]) {
   $gmail = $_SESSION["gmail"];
   $gpic = $_SESSION["gpic"];
 
-  console_log("From session");
-  console_log("ID: $gid");  
+  // console_log("From session");
+  // console_log("ID: $gid");  
 }
 
 // requests info
-console_log('$_REQUEST: ');
-console_log(print_r($_REQUEST, true));
+// console_log('$_REQUEST: ');
+// console_log(print_r($_REQUEST, true));
 
-console_log('$_SESSION: ');
-console_log(print_r($_SESSION, true));
+// console_log('$_SESSION: ');
+// console_log(print_r($_SESSION, true));
 
 // DB connection
 
@@ -152,9 +152,14 @@ if (!$uid) {
     $uid = getSingle("select uid from users where gid = '$gid'");
     console_log("Generated uid: $uid");
 } else {
-    console_log("uid: $uid");
+    // console_log("uid: $uid");
 }
 $_SESSION["uid"] = $uid; // put uid in session
+
+// access log
+date_default_timezone_set('america/new_york');
+$date_now = Date("Y-m-d H:i:s");
+query("insert into access_log (uid, date) values ('$uid', '$date_now')");
 
 // body
 
@@ -168,7 +173,7 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/20453
 
   <div class="container-fluid">
     <div class='m-3'>
-      <img src='<?php echo $gpic; ?>' style='width: 30px'> 
+      <img src='<?php echo $gpic; ?>' style='width: 30px' id='avatar-img'> 
       <p style='display: inline-block; margin-left: 10px;'> <?php echo $gname; ?> [<?php echo $gmail; ?>]</p>
       <p id='net-income' style='display: inline-block; float: right;'> </p>      
     </div>
@@ -308,11 +313,24 @@ function setNetIncome() {
         } else {
             $("#net-income").css("color", "green");
         }
+        setAvatar(netIncome);
     }).fail(function (jqXHR, textStatus, errorThrown){
         // Show error
         console.log("Error getting recurr list");
         console.log(errorThrown);
   })  
+}
+
+function setAvatar(netIncome) {
+    var gmail = "<?php echo $gmail; ?>";
+    if (gmail == 'atara.sun18@gmail.com' || gmail == 'holygeek17@gmail.com') {
+        // set avatar
+        if (netIncome > 0) {
+          $("#avatar-img").attr("src","https://s5.gifyu.com/images/ezgif.com-crop3ce89edfc94b9e98.gif");
+        } else {
+          $("#avatar-img").attr("src","https://i.ibb.co/DVvMD9K/IMG-2168.jpg");
+        }
+    }
 }
 
 function getSummary() {
