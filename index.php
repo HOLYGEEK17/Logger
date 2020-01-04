@@ -9,6 +9,8 @@
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
   <script src="https://kit.fontawesome.com/d105316e91.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-colorschemes"></script>
   <style>
   <?php
       $mobile = strstr($_SERVER['HTTP_USER_AGENT'],'iPhone');
@@ -175,12 +177,13 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/20453
     <div class='m-3'>
       <img src='<?php echo $gpic; ?>' style='width: 30px' id='avatar-img'> 
       <p style='display: inline-block; margin-left: 10px;'> <?php echo $gname; ?></p>
-      <i class="fa fa-history m-3" aria-hidden="true" id="dropdownMonth" 
+      <i class="fa fa-history ml-3 mr-1" aria-hidden="true" id="dropdownMonth" 
          style="display: inline-block; cursor: pointer;"
          data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
+      <p style='display: inline-block;' id='dtstr'></p>
       <div class="dropdown-menu" aria-labelledby="dropdownMonth">
-        <a class="dropdown-item" onclick="setDate(2019, 12)">December 2019</a>
-        <a class="dropdown-item" onclick="setDate(2020, 1)">Janurary 2020</a>        
+        <a class="dropdown-item" onclick="setDate(2019, 12, this.text)">December 2019</a>
+        <a class="dropdown-item" onclick="setDate(2020, 1, this.text)">Janurary 2020</a>        
       </div>
       <p id='net-income' style='display: inline-block; float: right;'> </p>      
     </div>
@@ -201,6 +204,7 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/20453
       </li>
     </ul>
     <div class="tab-content m-3" id="myTabContent">
+<!-- Log Tab -->
       <div class="tab-pane fade show active" id="log" role="tabpanel" aria-labelledby="log-tab">
         <form id="log-form" autocomplete="off">    
           <div class="form-row">
@@ -219,13 +223,13 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/20453
         </form>
         <div id='log-list'></div>
       </div>
+<!-- Summary Tab -->
       <div class="tab-pane fade" id="summary" role="tabpanel" aria-labelledby="summary-tab">
-        <div id="summary"></div>
+        <canvas id="summaryChart" class="mx-auto" style="display: block" width="400" height="400"></canvas>
+        <div id="summary-list"></div>
       </div>
       <div class="tab-pane fade" id="recurr" role="tabpanel" aria-labelledby="recurr-tab">
-<?php
-// Recurr Tab
-?>
+<!-- Recurr Tab -->
         <h5 class="mt-3 mb-3">Monthly Recurrents</h5>
         <form id="recurr-form" autocomplete="off">    
           <div class="form-row">
@@ -261,6 +265,9 @@ $(function() {
 
     // Autocomplete
     setAutocomplete();
+
+    // Set date string
+    $('#dtstr').text(getCookie('dtstr'));
 });
 
 // Tooltips
@@ -278,9 +285,12 @@ $(function () {
   $('[data-toggle="popover"]').popover()
 })
 
-function setDate(y, m) {
+function setDate(y, m, str) {
     document.cookie = "dtyear=" + y;
     document.cookie = "dtmonth=" + m;
+    document.cookie = "dtstr=" + str;
+    
+    $('#dtstr').text(str);
 
     // refresh logs
     getLog()
@@ -288,6 +298,73 @@ function setDate(y, m) {
 
     // refresh summary
     getSummary()
+    readySummaryChart();
+}
+
+// Charts
+var myChart;
+$('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
+  var pill_href = $(e.target).attr('href');  
+  if (pill_href === '#summary') readySummaryChart();
+})
+
+// Functions
+
+function readySummaryChart(force) {
+  if (myChart != null) myChart.destroy();
+  // Get Chart Data
+  $.when($.ajax({
+      url: "dbfunc.php",
+      dataType:"json",
+      data: "func=getSummaryTitle"
+    }), $.ajax({
+      url: "dbfunc.php",
+      dataType:"json",
+      data: "func=getSummaryValue"
+    })).then(function (resp1, resp2) {
+      console.log(resp1);
+      console.log(resp2);
+      drawSummaryChart(resp1[0], resp2[0]);
+  });        
+}
+
+function drawSummaryChart(titles, values) {
+  var ctx = $('#summaryChart');
+  myChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+          labels: titles,
+          datasets: [{
+              label: '$ spent',    
+              data: values,                 
+              borderWidth: 0
+          }]
+      },
+      options: {
+        responsive: false,
+        plugins: {
+          colorschemes: {
+            scheme: 'brewer.Paired12'
+          },  
+        }        
+      }
+  });
+}
+
+function getCookie(cname) {
+  var name = cname + "=";
+  var decodedCookie = decodeURIComponent(document.cookie);
+  var ca = decodedCookie.split(';');
+  for(var i = 0; i <ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
 }
 
 function setAutocomplete() {
@@ -353,13 +430,13 @@ function setAvatar(netIncome) {
 }
 
 function getSummary() {
-    $("#summary").html(`<div class="text-center"><img style="width: 200px; margin-top: 80px;" src="https://s5.gifyu.com/images/50453c5553eeb38_a.gif"></div>`);
+    $("#summary-list").html(`<div class="text-center"><img style="width: 200px; margin-top: 80px;" src="https://s5.gifyu.com/images/50453c5553eeb38_a.gif"></div>`);
     $.ajax({
         url: "dbfunc.php",
         data: "func=getSummary"
       }).done(function (response, textStatus, jqXHR){
           // console.log(response);
-          $("#summary").html(response);          
+          $("#summary-list").html(response);          
           $('[data-toggle="popover"]').popover()
 
       }).fail(function (jqXHR, textStatus, errorThrown){

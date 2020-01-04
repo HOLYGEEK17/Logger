@@ -93,6 +93,12 @@ switch ($func) {
     case 'getSummary';
         getSummary();
         break;
+    case 'getSummaryTitle';
+        getSummaryTitle();
+        break;
+    case 'getSummaryValue';
+        getSummaryValue();
+            break;
     case 'getAutoLogs';
         getAutoLogs();
         break;
@@ -169,6 +175,18 @@ function getSummary() {
       
       echo "</tbody>";
       echo "</table>";
+}
+
+function getSummaryTitle() {
+    global $uid, $dtyear, $dtmonth;
+    $summaryTitle = getRows("select category, sum(amount) as sum from logs where uid='$uid' and YEAR(date) = $dtyear and MONTH(date) = $dtmonth group by category order by sum desc", "category");
+    echo json_encode($summaryTitle);
+}
+
+function getSummaryValue() {
+    global $uid, $dtyear, $dtmonth;
+    $summaryValue = getRows("select category, sum(amount) as sum from logs where uid='$uid' and YEAR(date) = $dtyear and MONTH(date) = $dtmonth group by category order by sum desc", "sum");
+    echo json_encode($summaryValue);
 }
 
 function insertLog() {
