@@ -201,7 +201,7 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/20453
         <a class="nav-link" id="recurr-tab" data-toggle="pill" href="#recurr" role="tab" aria-controls="recurr" aria-selected="false">Recurr</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="stats-tab" data-toggle="pill" href="#stats" role="tab" aria-controls="stats" aria-selected="false">Stats</a>
+        <a class="nav-link" id="habit-tab" data-toggle="pill" href="#habit" role="tab" aria-controls="habit" aria-selected="false">Habit</a>
       </li>
     </ul>
     <div class="tab-content m-3" id="myTabContent">
@@ -246,8 +246,8 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/20453
         </form>
         <div id="recurr-list"></div>
       </div>
-<!-- Stats Tab -->
-      <div class="tab-pane fade" id="stats" role="tabpanel" aria-labelledby="stats-tab">
+<!-- Habits Tab -->
+      <div class="tab-pane fade" id="habit" role="tabpanel" aria-labelledby="habit-tab">
         <p style="text-align: center;">睡觉 🛏 中...</p>
         <p style="text-align: center;"><img style="width: 200px; margin-top: 10px;" src="https://s5.gifyu.com/images/sleep.gif"></p>
       </div>

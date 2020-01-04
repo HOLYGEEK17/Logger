@@ -217,7 +217,7 @@ function getLog() {
     <tr>
     <th scope="col">Log</th>
     <th scope="col">Category</th>
-    <th scope="col">Amount</th>
+    <th scope="col" style="text-align: right;">Amount</th>
     <th scope="col">Date</th>
     <th scope="col"></th>
     </tr>
@@ -306,8 +306,8 @@ function getRecurr() {
     <thead>
     <tr>
         <th scope="col">Name</th>
-        <th scope="col">Amount</th>
-        <th scope="col">Tag</th>
+        <th scope="col" style="text-align: right;">Amount</th>
+        <th scope="col" style="text-align: center;">Tags</th>
         <th scope="col"></th>
     </tr>
     </thead>
@@ -339,7 +339,7 @@ function getRecurr() {
         <tr id="rec_$rid">
             <td>$name</td>
             <td align="right" $amount_display>$amount</td>
-        <td style="color: $color; cursor: pointer;" onclick="toggleSavingRecurr(this.parentElement, $toggle)">
+        <td style="color: $color; cursor: pointer; text-align: center;" onclick="toggleSavingRecurr(this.parentElement, $toggle)">
             <i class="fas fa-money-check-alt" data-toggle="tooltip" data-placement="bottom" title="add or remove as Saving"></i>
         </td>
             <td style="color: grey; cursor: pointer; font-size: small;" onclick="deleteRecurr(this.parentElement)">x</td>
