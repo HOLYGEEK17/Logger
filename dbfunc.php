@@ -139,7 +139,7 @@ function getSummary() {
     $autoCats = getRows("select category, sum(amount) from logs where uid = $uid group by category order by sum(amount) desc;", "category");
     $dt = date('F Y');
 
-    echo "<h5 class='mt-3 mb-3'>Summary for $dt</h5>";
+    // echo "<h5 class='mt-3 mb-3'>Summary for $dt</h5>";
     echo "<table class='table'>";
     echo "<tbody>";
 

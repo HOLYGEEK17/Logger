@@ -179,11 +179,12 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/20453
       <p style='display: inline-block; margin-left: 10px;'> <?php echo $gname; ?></p>
       <i class="fa fa-history ml-3 mr-1" aria-hidden="true" id="dropdownMonth" 
          style="display: inline-block; cursor: pointer;"
-         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
-      <p style='display: inline-block;' id='dtstr'></p>
+         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+         <p style='display: inline-block; font-family: Lato;' id='dtstr'></p>
+      </i>
       <div class="dropdown-menu" aria-labelledby="dropdownMonth">
-        <a class="dropdown-item" onclick="setDate(2019, 12, this.text)">December 2019</a>
-        <a class="dropdown-item" onclick="setDate(2020, 1, this.text)">Janurary 2020</a>        
+        <a class="dropdown-item" style="cursor: pointer;" onclick="setDate(2019, 12, this.text)">December 2019</a>
+        <a class="dropdown-item" style="cursor: pointer;" onclick="setDate(2020, 1, this.text)">Janurary 2020</a>        
       </div>
       <p id='net-income' style='display: inline-block; float: right;'> </p>      
     </div>
@@ -225,11 +226,11 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/20453
       </div>
 <!-- Summary Tab -->
       <div class="tab-pane fade" id="summary" role="tabpanel" aria-labelledby="summary-tab">
-        <canvas id="summaryChart" class="mx-auto" style="display: block" width="400" height="400"></canvas>
+        <canvas id="summaryChart" class="mx-auto" style="display: block" <?php if ($mobile) { echo "height='800' width='800'"; } else { echo "height='400' width='400'"; } ?>></canvas>
         <div id="summary-list"></div>
       </div>
-      <div class="tab-pane fade" id="recurr" role="tabpanel" aria-labelledby="recurr-tab">
 <!-- Recurr Tab -->
+      <div class="tab-pane fade" id="recurr" role="tabpanel" aria-labelledby="recurr-tab">
         <h5 class="mt-3 mb-3">Monthly Recurrents</h5>
         <form id="recurr-form" autocomplete="off">    
           <div class="form-row">
@@ -245,9 +246,10 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/20453
         </form>
         <div id="recurr-list"></div>
       </div>
+<!-- Stats Tab -->
       <div class="tab-pane fade" id="stats" role="tabpanel" aria-labelledby="stats-tab">
-        <p>施工中...</p>
-        <p><img style="width: 200px; margin-top: 10px;" src="https://s5.gifyu.com/images/16be4c1a9ebdc0db80.gif"></p>
+        <p style="text-align: center;">睡觉 🛏 中...</p>
+        <p style="text-align: center;"><img style="width: 200px; margin-top: 10px;" src="https://s5.gifyu.com/images/sleep.gif"></p>
       </div>
     </div>
 </div>
@@ -303,6 +305,7 @@ function setDate(y, m, str) {
 
 // Charts
 var myChart;
+Chart.defaults.global.defaultFontSize = <?php if ($mobile) {echo "28";} else {echo "15";}?>;
 $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
   var pill_href = $(e.target).attr('href');  
   if (pill_href === '#summary') readySummaryChart();
