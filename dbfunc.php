@@ -87,6 +87,9 @@ switch ($func) {
     case 'deleteRec';
         deleteRec();
         break;
+    case 'toggleSavingRecurr';
+        toggleSavingRecurr();
+        break;
     case 'getNetIncome';
         getNetIncome();
         break;
@@ -264,6 +267,22 @@ function deleteRec() {
     echo "deleted";
 }
 
+function toggleSavingRecurr() {
+    $rid = $_REQUEST['rid'];
+    $flag = $_REQUEST['flag'];
+    global $uid;
+    switch($flag) {
+        case "0":
+            query("update recurrs set rtag = null where uid = '$uid' and rid = '$rid'");
+            echo "remove saving tag";
+            break;
+        case "1":
+            query("update recurrs set rtag = 'Saving' where uid = '$uid' and rid = '$rid'");
+            echo "added as saving";
+            break;
+    }
+}
+
 function insertRecurr() {
     global $uid;
     global $conn;
@@ -288,6 +307,7 @@ function getRecurr() {
     <tr>
         <th scope="col">Name</th>
         <th scope="col">Amount</th>
+        <th scope="col">Tag</th>
         <th scope="col"></th>
     </tr>
     </thead>
@@ -298,18 +318,30 @@ function getRecurr() {
         $rid = $row['rid'];
         $name = htmlspecialchars($row['rname']);
         $amount = htmlspecialchars($row['ramount']);
+        $tag = htmlspecialchars($row['rtag']);
 
         // process amount
-        $amount_display = "style='color: orangered;'";
+        $amount_display = "style='color: orangered; width: 120px;'";
         if ($amount < 0) {
             $amount *= -1;
-            $amount_display = "style='color: green;'";
+            $amount_display = "style='color: green; width: 120px;'";
+        }
+
+        // process tag
+        $color = "dimgrey";
+        $toggle = "1";
+        if ($tag) {
+            $color = "green";
+            $toggle = "0";
         }
 
         print <<<EOF
         <tr id="rec_$rid">
             <td>$name</td>
             <td align="right" $amount_display>$amount</td>
+        <td style="color: $color; cursor: pointer;" onclick="toggleSavingRecurr(this.parentElement, $toggle)">
+            <i class="fas fa-money-check-alt" data-toggle="tooltip" data-placement="bottom" title="add or remove as Saving"></i>
+        </td>
             <td style="color: grey; cursor: pointer; font-size: small;" onclick="deleteRecurr(this.parentElement)">x</td>
         </tr>
         EOF;

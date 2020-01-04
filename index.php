@@ -459,6 +459,7 @@ function getRecurr() {
     }).done(function (response, textStatus, jqXHR){
         // console.log(response);
         $("#recurr-list").html(response);
+        $('[data-toggle="tooltip"]').tooltip()
     }).fail(function (jqXHR, textStatus, errorThrown){
         // Show error
         console.log("Error getting recurr list");
@@ -515,6 +516,36 @@ function deleteRecurr(row) {
         console.log(response);
         $(row).hide();
         setNetIncome();
+    }).fail(function (jqXHR, textStatus, errorThrown){
+        // Show error
+        alert(errorThrown);
+    })
+}
+
+function toggleSavingRecurr(row, flag) {
+    // console.log(row);    
+    let lid = row.id.replace("rec_", "");
+    console.log(lid);
+
+    $.ajax({
+      url: "dbfunc.php",
+      data: "func=toggleSavingRecurr&rid=" + lid + "&flag=" + flag
+    }).done(function (response, textStatus, jqXHR){
+        console.log(response);
+        
+        let tag = $(row).find("td")[2];
+        if (response === "added as saving") {
+            $(tag).css("color", "green");
+            $(tag).removeAttr('onclick');
+            $(tag).attr('onClick', 'toggleSavingRecurr(this.parentElement, 0);');
+        } else {
+            $(tag).css("color", "dimgrey");
+            $(tag).removeAttr('onclick');
+            $(tag).attr('onClick', 'toggleSavingRecurr(this.parentElement, 1);');
+        }
+
+        // $(row).hide();
+        // setNetIncome();
     }).fail(function (jqXHR, textStatus, errorThrown){
         // Show error
         alert(errorThrown);
