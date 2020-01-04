@@ -12,6 +12,22 @@ $conn = mysqli_connect($dbhost, $dbuser, $dbpass, $dbname);
 
 if (!$conn) die('Could not connect: ' . mysqli_connect_error());
 
+// cookies
+
+function getCookie($cname) {
+    if(!isset($_COOKIE[$cname])) {
+        return "";
+    } else {
+        return $_COOKIE[$cname];
+    }
+}
+
+$dtyear = getCookie("dtyear");
+$dtmonth = getCookie("dtmonth");
+
+if (!$dtyear) $dtyear = "YEAR(CURRENT_DATE())";
+if (!$dtmonth) $dtmonth = "MONTH(CURRENT_DATE())";
+
 // functions
 
 function console_log($output, $with_script_tags = true) {
@@ -100,8 +116,8 @@ function getAutoCats() {
 }
 
 function getNetIncome() {
-    global $uid;
-    $net_income = getSingle("select -sum(amount) from logs where uid=$uid and YEAR(date) = YEAR(CURRENT_DATE()) and MONTH(date) = MONTH(CURRENT_DATE())");
+    global $uid, $dtyear, $dtmonth;
+    $net_income = getSingle("select -sum(amount) from logs where uid=$uid and YEAR(date) = $dtyear and MONTH(date) = $dtmonth");
     $recurr_sum = getSingle("select -sum(ramount) from recurrs where uid=$uid;");
 
     if (!$net_income) $net_income = 0;
@@ -113,7 +129,7 @@ function getNetIncome() {
 }
 
 function getSummary() {
-    global $uid;
+    global $uid, $dtyear, $dtmonth;
     $autoCats = getRows("select category, sum(amount) from logs where uid = $uid group by category order by sum(amount) desc;", "category");
     $dt = date('F Y');
 
@@ -123,10 +139,10 @@ function getSummary() {
 
     foreach($autoCats as $cat){
         echo "<tr><td></td><td style='width: 400px'></td><td></td></tr>";
-        $catSum = getSingle("select sum(amount) from logs where category='$cat' and uid='$uid' and YEAR(date) = YEAR(CURRENT_DATE()) and MONTH(date) = MONTH(CURRENT_DATE())");
+        $catSum = getSingle("select sum(amount) from logs where category='$cat' and uid='$uid' and YEAR(date) = $dtyear and MONTH(date) = $dtmonth");
         echo "<tr style='font-weight: bold;'><td><h5>$cat</h5></td><td></td><td align='right'>$catSum</td></tr>";
         
-        $res = query("select category, log, sum(amount) as sum from logs where category='$cat' and uid='$uid' and YEAR(date) = YEAR(CURRENT_DATE()) and MONTH(date) = MONTH(CURRENT_DATE()) group by category, log");  
+        $res = query("select category, log, sum(amount) as sum from logs where category='$cat' and uid='$uid' and YEAR(date) = $dtyear and MONTH(date) = $dtmonth group by category, log");  
         while ($row = mysqli_fetch_assoc($res)) {
           $s_sum = $row['sum'];
           $s_log = htmlspecialchars($row['log']);  
@@ -140,7 +156,7 @@ function getSummary() {
 
           // Get summary details
           $sdetail_str = "";
-          $sdetail = query("select amount, date from logs where uid='$uid' and category='$cat' and log='$s_log' and YEAR(date) = YEAR(CURRENT_DATE()) and MONTH(date) = MONTH(CURRENT_DATE()) order by date");  
+          $sdetail = query("select amount, date from logs where uid='$uid' and category='$cat' and log='$s_log' and YEAR(date) = $dtyear and MONTH(date) = $dtmonth order by date");  
           while ($srow = mysqli_fetch_assoc($sdetail)) {
               $damount = $srow['amount'];
               $ddate = $srow['date'];          
@@ -172,8 +188,8 @@ function insertLog() {
 }
 
 function getLog() {
-    global $uid;
-    $res = query("select * from logs where uid = '$uid' and YEAR(date) = YEAR(CURRENT_DATE()) and MONTH(date) = MONTH(CURRENT_DATE()) order by date desc");
+    global $uid, $dtyear, $dtmonth;
+    $res = query("select * from logs where uid = '$uid' and YEAR(date) = $dtyear and MONTH(date) = $dtmonth order by date desc");
     print <<<EOF
     <table class="table">
     <thead>

@@ -8,7 +8,7 @@
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-
+  <script src="https://kit.fontawesome.com/d105316e91.js" crossorigin="anonymous"></script>
   <style>
   <?php
       $mobile = strstr($_SERVER['HTTP_USER_AGENT'],'iPhone');
@@ -174,7 +174,14 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/20453
   <div class="container-fluid">
     <div class='m-3'>
       <img src='<?php echo $gpic; ?>' style='width: 30px' id='avatar-img'> 
-      <p style='display: inline-block; margin-left: 10px;'> <?php echo $gname; ?> [<?php echo $gmail; ?>]</p>
+      <p style='display: inline-block; margin-left: 10px;'> <?php echo $gname; ?></p>
+      <i class="fa fa-history m-3" aria-hidden="true" id="dropdownMonth" 
+         style="display: inline-block; cursor: pointer;"
+         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
+      <div class="dropdown-menu" aria-labelledby="dropdownMonth">
+        <a class="dropdown-item" onclick="setDate(2019, 12)">December 2019</a>
+        <a class="dropdown-item" onclick="setDate(2020, 1)">Janurary 2020</a>        
+      </div>
       <p id='net-income' style='display: inline-block; float: right;'> </p>      
     </div>
     <div class='m-3' style='height:1px'></div>
@@ -271,6 +278,18 @@ $(function () {
   $('[data-toggle="popover"]').popover()
 })
 
+function setDate(y, m) {
+    document.cookie = "dtyear=" + y;
+    document.cookie = "dtmonth=" + m;
+
+    // refresh logs
+    getLog()
+    setNetIncome()
+
+    // refresh summary
+    getSummary()
+}
+
 function setAutocomplete() {
     var logs;
     var cats;
@@ -323,7 +342,7 @@ function setNetIncome() {
 
 function setAvatar(netIncome) {
     var gmail = "<?php echo $gmail; ?>";
-    if (gmail == 'atara.sun18@gmail.com' || gmail == 'holygeek17@gmail.com') {
+    if (gmail == 'atara.sun18@gmail.com') {
         // set avatar
         if (netIncome > 0) {
           $("#avatar-img").attr("src","https://s5.gifyu.com/images/ezgif.com-crop3ce89edfc94b9e98.gif");
