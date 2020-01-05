@@ -168,7 +168,7 @@ query("insert into access_log (uid, date) values ('$uid', '$date_now')");
 // customize for pi
 if ($gmail == 'atara.sun18@gmail.com') $gpic = 'https://i.ibb.co/DVvMD9K/IMG-2168.jpg';
 if ($gmail == 'atara.sun18@gmail.com') $gpic = 'https://s5.gifyu.com/images/ezgif.com-crop3ce89edfc94b9e98.gif';
-if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/20453d5c971c78b_a.gif';
+if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/ffpic140613509962z72.gif';
 // if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/ezgif.com-crop3ce89edfc94b9e98.gif';
   ?>
 
@@ -303,6 +303,30 @@ function setDate(y, m, str) {
     readySummaryChart();
 }
 
+// Log Category auto-fill
+let logCatMap = new Map()
+$.ajax({
+        url: "dbfunc.php",
+        dataType:"json",
+        data: "func=getLogCatRecords"
+      }).done(function (response, textStatus, jqXHR){   
+        // console.log(response);
+        for (var i = 0; i < response.length; i++){
+            var record = response[i];
+            let log = record["log"];
+            let cat = record["category"];
+            logCatMap.set(log, cat);
+        }
+        // console.log(logCatMap);
+      }).fail(function (jqXHR, textStatus, errorThrown){ console.log(errorThrown); }) 
+
+function autofillCategory(event, ui) {
+  let log = ui.item.label;
+  let cat = logCatMap.get(log);
+  // console.log("You selected: " + log + " - " + cat);
+  $("#lcategory").val(cat);
+}
+
 // Charts
 var myChart;
 Chart.defaults.global.defaultFontSize = <?php if ($mobile) {echo "28";} else {echo "15";}?>;
@@ -325,8 +349,8 @@ function readySummaryChart(force) {
       dataType:"json",
       data: "func=getSummaryValue"
     })).then(function (resp1, resp2) {
-      console.log(resp1);
-      console.log(resp2);
+      // console.log(resp1);
+      // console.log(resp2);
       drawSummaryChart(resp1[0], resp2[0]);
   });        
 }
@@ -380,7 +404,8 @@ function setAutocomplete() {
         data: "func=getAutoLogs"
       }).done(function (response, textStatus, jqXHR){   
         $("#llog").autocomplete({
-          source: response
+          source: response,
+          select: autofillCategory
         });
       }).fail(function (jqXHR, textStatus, errorThrown){
           console.log(errorThrown);

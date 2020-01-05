@@ -66,6 +66,17 @@ function getRows($query, $key) {
     return $array;
 }
 
+function getRowsArr($query) {
+    global $conn;
+    $result = mysqli_query($conn, $query);
+    if($result === FALSE) die(mysqli_error($conn));   
+    $array = array();
+    while ($row = mysqli_fetch_assoc($result)){      
+      $array[] = $row;
+    }
+    return $array;
+}
+
 // Get params
 $func = $_REQUEST['func'];
 switch ($func) {
@@ -108,6 +119,9 @@ switch ($func) {
     case 'getAutoCats';
         getAutoCats();
         break;
+    case 'getLogCatRecords';
+        getLogCatRecords();
+        break;        
 }
 
 // DB Functions
@@ -122,6 +136,12 @@ function getAutoCats() {
     global $uid;
     $autoCats = getRows("select distinct category from logs where uid = $uid order by category", "category");
     echo json_encode($autoCats);
+}
+
+function getLogCatRecords() {
+    global $uid;
+    $logCatPairs = getRowsArr("select distinct log, category from logs where uid = $uid ");
+    echo json_encode($logCatPairs);
 }
 
 function getNetIncome() {
