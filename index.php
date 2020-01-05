@@ -226,7 +226,12 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/ffpic
       </div>
 <!-- Summary Tab -->
       <div class="tab-pane fade" id="summary" role="tabpanel" aria-labelledby="summary-tab">
-        <canvas id="summaryChart" class="mx-auto" style="display: block" <?php if ($mobile) { echo "height='800' width='800'"; } else { echo "height='400' width='400'"; } ?>></canvas>
+        <div class="container">
+          <div class="row">
+            <div class="col"><canvas id="summaryChartPie" class="mx-auto" style="display: block" <?php if ($mobile) { echo "height='800' width='800'"; } else { echo "height='400' width='400'"; } ?>></canvas></div>
+            <div class="col"><canvas id="summaryChartLine" class="mx-auto" style="display: block" <?php if ($mobile) { echo "height='800' width='800'"; } else { echo "height='400' width='400'"; } ?>></canvas></div>
+          </div>
+        </div>
         <div id="summary-list"></div>
       </div>
 <!-- Recurr Tab -->
@@ -300,7 +305,8 @@ function setDate(y, m, str) {
 
     // refresh summary
     getSummary()
-    readySummaryChart();
+    readySummaryChartPie();
+    readySummaryChartLine();
 }
 
 // Log Category auto-fill
@@ -328,17 +334,21 @@ function autofillCategory(event, ui) {
 }
 
 // Charts
-var myChart;
+var myChartPie;
+var myChartLine;
 Chart.defaults.global.defaultFontSize = <?php if ($mobile) {echo "28";} else {echo "15";}?>;
 $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
   var pill_href = $(e.target).attr('href');  
-  if (pill_href === '#summary') readySummaryChart();
+  if (pill_href === '#summary') {
+    readySummaryChartPie();
+    readySummaryChartLine();
+  }
 })
 
 // Functions
 
-function readySummaryChart(force) {
-  if (myChart != null) myChart.destroy();
+function readySummaryChartPie() {
+  if (myChartPie != null) myChartPie.destroy();
   // Get Chart Data
   $.when($.ajax({
       url: "dbfunc.php",
@@ -351,13 +361,13 @@ function readySummaryChart(force) {
     })).then(function (resp1, resp2) {
       // console.log(resp1);
       // console.log(resp2);
-      drawSummaryChart(resp1[0], resp2[0]);
+      drawSummaryChartPie(resp1[0], resp2[0]);
   });        
 }
 
-function drawSummaryChart(titles, values) {
-  var ctx = $('#summaryChart');
-  myChart = new Chart(ctx, {
+function drawSummaryChartPie(titles, values) {
+  var ctxPie = $('#summaryChartPie');
+  myChartPie = new Chart(ctxPie, {
       type: 'pie',
       data: {
           labels: titles,
@@ -369,11 +379,109 @@ function drawSummaryChart(titles, values) {
       },
       options: {
         responsive: false,
+        title: {
+					display: true,
+					text: 'Spending this month'
+				},
         plugins: {
           colorschemes: {
             scheme: 'brewer.Paired12'
           },  
         }        
+      }
+  });
+}
+
+function readySummaryChartLine() {
+  if (myChartLine != null) myChartLine.destroy();
+  console.log("Getting data...");
+  // Get Chart Data
+  $.when($.ajax({
+      url: "dbfunc.php",
+      dataType:"json",
+      data: "func=getDailySpending"
+    }).fail(function (jqXHR, textStatus, errorThrown){console.log(errorThrown);}), 
+    $.ajax({
+      url: "dbfunc.php",
+      dataType:"json",
+      data: "func=getDailySpendingHistory"
+    }).fail(function (jqXHR, textStatus, errorThrown){console.log(errorThrown);})
+    ).then(function (resp1, resp2) {
+      console.log(resp1[0]);
+      console.log(resp2[0]);
+      let dateArr = [];
+      let amountArr = [];      
+      let amount = 0;
+      for (var i = 0; i < resp1[0].length; i++){
+            var record = resp1[0][i];
+            let date = record["date"];
+            amount += parseFloat(record["amount"]);            
+            dateArr.push(date);
+            amountArr.push(amount.toFixed(2));
+      }
+      let avgAmtArr = [];
+      let amountAvg = 0;
+      for (var i = 0; i < resp2[0].length; i++){
+            var record = resp2[0][i];
+            amountAvg += parseFloat(record["amount"]);          
+            avgAmtArr.push(amountAvg.toFixed(2));
+      }
+      // console.log(dateArr);
+      // console.log(amountArr);
+      drawSummaryChartLine(dateArr, amountArr, avgAmtArr);
+  });        
+}
+
+function drawSummaryChartLine(titles, values1, values2) {
+  var ctxLine = $('#summaryChartLine');
+  myChartLine = new Chart(ctxLine, {
+      type: 'line',
+      data: {
+          labels: titles,
+          datasets: [{
+              label: '$ spent',    
+              backgroundColor: 'rgba(226, 106, 106, 1)',
+					    borderColor: 'rgba(226, 106, 106, 1)',
+              data: values1,                 
+              fill: false
+          }, {
+              label: '$ history avg spent',    
+              backgroundColor: 'rgba(0, 181, 204, 1)',
+					    borderColor: 'rgba(0, 181, 204, 1)',
+              data: values2,                 
+              fill: false
+          }]
+      },
+      options: {
+        responsive: false,
+        title: {
+					display: true,
+					text: 'Daily spending'
+				},
+        tooltips: {
+					mode: 'index',
+					intersect: false,
+				},
+				hover: {
+					mode: 'nearest',
+					intersect: true
+				},
+				scales: {
+					xAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: 'Date'
+						}
+					}],
+					yAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: 'Amount Spent'
+						}
+					}]
+				}       
       }
   });
 }

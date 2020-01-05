@@ -24,6 +24,7 @@ function getCookie($cname) {
 
 $dtyear = getCookie("dtyear");
 $dtmonth = getCookie("dtmonth");
+$dtday = date('d');
 
 if (!$dtyear) $dtyear = "YEAR(CURRENT_DATE())";
 if (!$dtmonth) $dtmonth = "MONTH(CURRENT_DATE())";
@@ -121,7 +122,13 @@ switch ($func) {
         break;
     case 'getLogCatRecords';
         getLogCatRecords();
-        break;        
+        break;      
+    case 'getDailySpending';
+        getDailySpending();
+        break;  
+    case 'getDailySpendingHistory';
+        getDailySpendingHistory();
+        break;     
 }
 
 // DB Functions
@@ -141,6 +148,25 @@ function getAutoCats() {
 function getLogCatRecords() {
     global $uid;
     $logCatPairs = getRowsArr("select distinct log, category from logs where uid = $uid ");
+    echo json_encode($logCatPairs);
+}
+
+function getDailySpending() {
+    global $uid, $dtyear, $dtmonth, $dtday;
+    $sql  = "select calendar_day.day as date, IFNULL(avg(logs.amount), 0) as amount ";
+    $sql .= "from logs right join calendar_day on DAY(logs.date) = calendar_day.day and YEAR(logs.date) = $dtyear and MONTH(logs.date) = $dtmonth ";
+    $sql .= "and logs.amount > 0 and uid = $uid ";
+    $sql .= "group by calendar_day.day limit $dtday; ";
+    $logCatPairs = getRowsArr($sql);    
+    echo json_encode($logCatPairs);
+}
+function getDailySpendingHistory() {
+    global $uid, $dtyear, $dtmonth, $dtday;
+    $sql  = "select calendar_day.day as date, IFNULL(avg(logs.amount), 0) as amount ";
+    $sql .= "from logs right join calendar_day on DAY(logs.date) = calendar_day.day ";
+    $sql .= "and logs.amount > 0 and uid = $uid ";
+    $sql .= "group by calendar_day.day limit $dtday; ";
+    $logCatPairs = getRowsArr($sql);
     echo json_encode($logCatPairs);
 }
 
