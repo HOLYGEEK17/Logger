@@ -394,7 +394,7 @@ function drawSummaryChartPie(titles, values) {
 
 function readySummaryChartLine() {
   if (myChartLine != null) myChartLine.destroy();
-  console.log("Getting data...");
+  // console.log("Getting data...");
   // Get Chart Data
   $.when($.ajax({
       url: "dbfunc.php",
@@ -407,22 +407,22 @@ function readySummaryChartLine() {
       data: "func=getDailySpendingHistory"
     }).fail(function (jqXHR, textStatus, errorThrown){console.log(errorThrown);})
     ).then(function (resp1, resp2) {
-      console.log(resp1[0]);
-      console.log(resp2[0]);
-      let dateArr = [];
+      // console.log(resp1[0]);
+      // console.log(resp2[0]);      
       let amountArr = [];      
       let amount = 0;
       for (var i = 0; i < resp1[0].length; i++){
-            var record = resp1[0][i];
-            let date = record["date"];
-            amount += parseFloat(record["amount"]);            
-            dateArr.push(date);
+            var record = resp1[0][i];            
+            amount += parseFloat(record["amount"]);                        
             amountArr.push(amount.toFixed(2));
       }
+      let dateArr = [];
       let avgAmtArr = [];
       let amountAvg = 0;
       for (var i = 0; i < resp2[0].length; i++){
             var record = resp2[0][i];
+            let date = record["date"];
+            dateArr.push(date);
             amountAvg += parseFloat(record["amount"]);          
             avgAmtArr.push(amountAvg.toFixed(2));
       }
@@ -442,12 +442,16 @@ function drawSummaryChartLine(titles, values1, values2) {
               label: '$ spent',    
               backgroundColor: 'rgba(226, 106, 106, 1)',
 					    borderColor: 'rgba(226, 106, 106, 1)',
+              pointBackgroundColor: 'rgba(226, 106, 106, 1)',
+              pointBorderColor: 'rgba(226, 106, 106, 1)',
               data: values1,                 
               fill: false
           }, {
               label: '$ history avg spent',    
               backgroundColor: 'rgba(0, 181, 204, 1)',
 					    borderColor: 'rgba(0, 181, 204, 1)',
+              pointBackgroundColor: 'rgba(0, 181, 204, 1)',
+              pointBorderColor: 'rgba(0, 181, 204, 1)',
               data: values2,                 
               fill: false
           }]

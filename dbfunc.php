@@ -24,11 +24,12 @@ function getCookie($cname) {
 
 $dtyear = getCookie("dtyear");
 $dtmonth = getCookie("dtmonth");
+// $dtday = getCookie("dtday");
 $dtday = date('d');
 
 if (!$dtyear) $dtyear = "YEAR(CURRENT_DATE())";
 if (!$dtmonth) $dtmonth = "MONTH(CURRENT_DATE())";
-
+// if (!$dtday) $dtmonth = date('d');
 // functions
 
 function console_log($output, $with_script_tags = true) {
@@ -163,9 +164,9 @@ function getDailySpending() {
 function getDailySpendingHistory() {
     global $uid, $dtyear, $dtmonth, $dtday;
     $sql  = "select calendar_day.day as date, IFNULL(avg(logs.amount), 0) as amount ";
-    $sql .= "from logs right join calendar_day on DAY(logs.date) = calendar_day.day ";
+    $sql .= "from logs right join calendar_day on DAY(logs.date) = calendar_day.day and (YEAR(date) != YEAR(CURRENT_DATE()) or MONTH(date) != MONTH(CURRENT_DATE())) ";
     $sql .= "and logs.amount > 0 and uid = $uid ";
-    $sql .= "group by calendar_day.day limit $dtday; ";
+    $sql .= "group by calendar_day.day; ";
     $logCatPairs = getRowsArr($sql);
     echo json_encode($logCatPairs);
 }
@@ -185,7 +186,7 @@ function getNetIncome() {
 
 function getSummary() {
     global $uid, $dtyear, $dtmonth;
-    $autoCats = getRows("select category, sum(amount) from logs where uid = $uid group by category order by sum(amount) desc;", "category");
+    $autoCats = getRows("select category, sum(amount) from logs where uid = $uid and YEAR(date) = $dtyear and MONTH(date) = $dtmonth group by category order by sum(amount) desc;", "category");
     $dt = date('F Y');
 
     // echo "<h5 class='mt-3 mb-3'>Summary for $dt</h5>";
