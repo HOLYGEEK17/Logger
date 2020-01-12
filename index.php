@@ -16,6 +16,29 @@
       $mobile = strstr($_SERVER['HTTP_USER_AGENT'],'iPhone');
       if ($mobile) echo "html {font-size: 2rem;}";
   ?>
+  .nav-pills .nav-link.active {
+    background-color: rgb(51, 112, 235);
+  }
+  
+  .btn-primary {
+    background-color: rgb(51, 112, 235);
+  }
+
+  textarea, input[type="text"], input[type="number"] {
+    background-color: rgb(35, 33, 30);
+    border: 1px solid;
+  }
+
+  .form-control:focus {
+    background-color: rgb(35, 33, 30);
+    border: 1px solid;
+    color: rgb(234, 217, 187);
+  }
+
+  .form-control {    
+    /* color: rgb(234, 217, 187); */
+  }
+
   </style>
 
   <title>Logger</title>
@@ -172,6 +195,26 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/ffpic
 // if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/ezgif.com-crop3ce89edfc94b9e98.gif';
   ?>
 
+  <!-- Modal -->
+  <div class="modal fade" id="piggyModal" tabindex="-1" role="dialog" aria-labelledby="piggyModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">Net Income Trends</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          Not Enough Data
+        </div>
+        <!-- <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div> -->
+      </div>
+    </div>
+  </div>
 
   <div class="container-fluid">
     <div class='m-3'>
@@ -186,19 +229,21 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/ffpic
         <a class="dropdown-item" style="cursor: pointer;" onclick="setDate(2019, 12, this.text)">December 2019</a>
         <a class="dropdown-item" style="cursor: pointer;" onclick="setDate(2020, 1, this.text)">Janurary 2020</a>        
       </div>
-      <p id='net-income' style='display: inline-block; float: right;'> </p>      
+      <p id='net-income' 
+         type="button" data-toggle="modal" data-target="#piggyModal"
+         style='display: inline-block; float: right;'> </p>      
     </div>
     <div class='m-3' style='height:1px'></div>
 
     <ul class="nav nav-pills nav-fill m-3" id="myTab" role="tablist">
       <li class="nav-item">
-        <a class="nav-link active" id="log-tab" data-toggle="pill" href="#log" role="tab" aria-controls="log" aria-selected="true">Log</a>
+        <a class="nav-link active" id="log-tab" data-toggle="pill" href="#log" role="tab" aria-controls="log" aria-selected="true">Spending</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" id="summary-tab" data-toggle="pill" href="#summary" role="tab" aria-controls="summary" aria-selected="false">Summary</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="recurr-tab" data-toggle="pill" href="#recurr" role="tab" aria-controls="recurr" aria-selected="false">Recurr</a>
+        <a class="nav-link" id="recurr-tab" data-toggle="pill" href="#recurr" role="tab" aria-controls="recurr" aria-selected="false">Recurring</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" id="habit-tab" data-toggle="pill" href="#habit" role="tab" aria-controls="habit" aria-selected="false">Habit</a>
@@ -207,10 +252,10 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/ffpic
     <div class="tab-content m-3" id="myTabContent">
 <!-- Log Tab -->
       <div class="tab-pane fade show active" id="log" role="tabpanel" aria-labelledby="log-tab">
-        <form id="log-form" autocomplete="off">    
+        <form id="log-form" class="mb-3" autocomplete="off">    
           <div class="form-row">
             <div class="col"> 
-              <input type="text" class="form-control" id=llog name=llog placeholder="Log" required="true">
+              <input type="text" class="form-control" id=llog name=llog placeholder="Name" required="true">
             </div>
             <div class="col"> 
               <input type="text" class="form-control" id=lcategory name=lcategory placeholder="Category" required="true">
@@ -219,7 +264,7 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/ffpic
               <input type="number" step="any" class="form-control" id=lamount name=lamount placeholder="Amount" required="true">
             </div>
 
-            <button type=submit class="btn btn-primary" data-toggle="tooltip" data-placement="bottom" title="Log a record of expense, with name, category and the amount. Enter minus value for money income">Log</button>      
+            <button type=submit class="btn btn-primary" data-toggle="tooltip" data-placement="bottom" title="Log a record of expense, with name, category and the amount. Enter minus value for money income">Add Spending</button>      
           </div>
         </form>
         <div id='log-list'></div>
@@ -236,8 +281,8 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/ffpic
       </div>
 <!-- Recurr Tab -->
       <div class="tab-pane fade" id="recurr" role="tabpanel" aria-labelledby="recurr-tab">
-        <h5 class="mt-3 mb-3">Monthly Recurrents</h5>
-        <form id="recurr-form" autocomplete="off">    
+        <!-- <h5 class="mt-3 mb-3">Monthly Recurrents</h5> -->
+        <form id="recurr-form" class="mb-3" autocomplete="off">    
           <div class="form-row">
             <div class="col"> 
               <input type="text" class="form-control" id="rname" name=rname placeholder="Name" required="true">
@@ -245,7 +290,7 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/ffpic
             <div class="col"> 
               <input type="number" step="any" class="form-control" id="ramount" name=ramount placeholder="Amount" required="true">
             </div>
-            <button type=submit class="btn btn-primary" data-toggle="tooltip" data-placement="bottom" title="Add recurrent such as income or rent that will repeat monthly">Add Recurrent</button>      
+            <button type=submit class="btn btn-primary" data-toggle="tooltip" data-placement="bottom" title="Add recurrent such as income or rent that will repeat monthly">Add Monthly Recurring</button>      
           </div>
           <!-- <input type="hidden" id=uid name=uid value="<?php echo $uid; ?>">  -->
         </form>

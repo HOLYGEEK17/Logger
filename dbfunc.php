@@ -262,7 +262,7 @@ function getLog() {
     <table class="table">
     <thead>
     <tr>
-    <th scope="col">Log</th>
+    <th scope="col">Name</th>
     <th scope="col">Category</th>
     <th scope="col" style="text-align: right;">Amount</th>
     <th scope="col">Date</th>
