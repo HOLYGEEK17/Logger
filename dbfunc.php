@@ -106,6 +106,9 @@ switch ($func) {
     case 'getNetIncome';
         getNetIncome();
         break;
+    case 'getHabitScore';
+        getHabitScore();
+        break;
     case 'getSummary';
         getSummary();
         break;
@@ -130,6 +133,9 @@ switch ($func) {
     case 'getDailySpendingHistory';
         getDailySpendingHistory();
         break;     
+    case 'getTotalSaving';
+        getTotalSaving();
+        break;  
 }
 
 // DB Functions
@@ -182,6 +188,26 @@ function getNetIncome() {
     $net_income += $recurr_sum;
 
     echo $net_income;
+}
+
+function getHabitScore() {
+    global $uid, $dtyear, $dtmonth;
+    // $net_income = getSingle("select -sum(amount) from logs where uid=$uid and YEAR(date) = $dtyear and MONTH(date) = $dtmonth");
+    // $recurr_sum = getSingle("select -sum(ramount) from recurrs where uid=$uid;");
+
+    // if (!$net_income) $net_income = 0;
+    // if (!$recurr_sum) $recurr_sum = 0;
+
+    // $net_income += $recurr_sum;
+
+    // echo $net_income;
+    echo 0;
+}
+
+function getTotalSaving() {
+    global $uid;
+    $saving_sum = getSingle("select sum(amount) from savings where uid=$uid;");
+    echo $saving_sum;
 }
 
 function getSummary() {

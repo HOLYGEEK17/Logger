@@ -20,9 +20,9 @@
     background-color: rgb(51, 112, 235);
   }
   
-  .btn-primary {
+  /* .btn-primary {
     background-color: rgb(51, 112, 235);
-  }
+  } */
 
   textarea, input[type="text"], input[type="number"] {
     background-color: rgb(35, 33, 30);
@@ -33,10 +33,6 @@
     background-color: rgb(35, 33, 30);
     border: 1px solid;
     color: rgb(234, 217, 187);
-  }
-
-  .form-control {    
-    /* color: rgb(234, 217, 187); */
   }
 
   </style>
@@ -195,7 +191,7 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/ffpic
 // if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/ezgif.com-crop3ce89edfc94b9e98.gif';
   ?>
 
-  <!-- Modal -->
+  <!-- Modal Piggy -->
   <div class="modal fade" id="piggyModal" tabindex="-1" role="dialog" aria-labelledby="piggyModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
@@ -206,7 +202,7 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/ffpic
           </button>
         </div>
         <div class="modal-body">
-          Not Enough Data
+          <p id="total-saving">Total Saving: </p>
         </div>
         <!-- <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -215,6 +211,27 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/ffpic
       </div>
     </div>
   </div>
+
+  <!-- Modal Habit -->
+  <div class="modal fade" id="habitScoreModal" tabindex="-1" role="dialog" aria-labelledby="habitModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Habit Score Trends</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Not Enough Data
+      </div>
+      <!-- <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div> -->
+    </div>
+  </div>
+</div>
 
   <div class="container-fluid">
     <div class='m-3'>
@@ -229,9 +246,14 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/ffpic
         <a class="dropdown-item" style="cursor: pointer;" onclick="setDate(2019, 12, this.text)">December 2019</a>
         <a class="dropdown-item" style="cursor: pointer;" onclick="setDate(2020, 1, this.text)">Janurary 2020</a>        
       </div>
-      <p id='net-income' 
-         type="button" data-toggle="modal" data-target="#piggyModal"
-         style='display: inline-block; float: right;'> </p>      
+<!-- Habit score -->    
+      <p id='habit-score' class="m-1"
+         data-toggle="modal" data-target="#habitScoreModal"
+         style='display: inline-block; float: right; cursor:pointer;'> </p>    
+<!-- Piggy bank -->
+      <p id='net-income' class="m-1"
+         data-toggle="modal" data-target="#piggyModal"
+         style='display: inline-block; float: right; cursor:pointer;'> </p>      
     </div>
     <div class='m-3' style='height:1px'></div>
 
@@ -298,8 +320,32 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/ffpic
       </div>
 <!-- Habits Tab -->
       <div class="tab-pane fade" id="habit" role="tabpanel" aria-labelledby="habit-tab">
-        <p style="text-align: center;">睡觉 🛏 中...</p>
-        <p style="text-align: center;"><img style="width: 200px; margin-top: 10px;" src="https://s5.gifyu.com/images/sleep.gif"></p>
+
+        <!-- Modal Add Habit -->
+        <div class="modal fade" id="addHabitModal" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Add a new Habit!</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                TODO
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <button class="btn btn-primary m-3" data-toggle="modal" data-target="#addHabitModal" style="width: 200px">Add a new habit</button>      
+        </div>
+
       </div>
     </div>
 </div>
@@ -314,6 +360,8 @@ $(function() {
     getRecurr();
     getSummary();
     setNetIncome();
+    setHabitScore();
+    setTotalSaving();
 
     // Autocomplete
     setAutocomplete();
@@ -345,11 +393,11 @@ function setDate(y, m, str) {
     $('#dtstr').text(str);
 
     // refresh logs
-    getLog()
-    setNetIncome()
+    getLog();
+    setNetIncome();
 
     // refresh summary
-    getSummary()
+    getSummary();
     readySummaryChartPie();
     readySummaryChartLine();
 }
@@ -588,7 +636,7 @@ function setNetIncome() {
       data: "func=getNetIncome"
     }).done(function (response, textStatus, jqXHR){      
         netIncome = parseFloat(response);
-        $("#net-income").html("<img src='https://i.ibb.co/tqgyqm3/piggy-bank.png' style='width: 30px; margin-right: 0.5rem; margin-bottom: 0.5rem;'><p style='display: inline-block;'>" + response + "</p>");
+        $("#net-income").html("<i class='fas fa-donate m-1'></i><p style='display: inline-block;'>" + response + "</p>");
         if (netIncome < 0) {
             $("#net-income").css("color", "orangered");
         } else {
@@ -598,6 +646,37 @@ function setNetIncome() {
     }).fail(function (jqXHR, textStatus, errorThrown){
         // Show error
         console.log("Error getting recurr list");
+        console.log(errorThrown);
+  })  
+}
+
+function setHabitScore() {
+  let score = 0;
+  $.ajax({
+      url: "dbfunc.php",
+      data: "func=getHabitScore"
+    }).done(function (response, textStatus, jqXHR){      
+      score = parseFloat(response);
+      $("#habit-score").html("<i class='far fa-star m-1'></i><p style='display: inline-block;'>" + response + "</p>");
+      if (score < 0) {
+          $("#habit-score").css("color", "orangered");
+      } else {
+          $("#habit-score").css("color", "green");
+      }
+    }).fail(function (jqXHR, textStatus, errorThrown){
+        // Show error
+        console.log("Error getting habit score");
+        console.log(errorThrown);
+  })  
+}
+
+function setTotalSaving() {
+  $.ajax({
+      url: "dbfunc.php",
+      data: "func=getTotalSaving"
+    }).done(function (response, textStatus, jqXHR){              
+        $("#total-saving").html("Total Saving: $" + response);
+    }).fail(function (jqXHR, textStatus, errorThrown){
         console.log(errorThrown);
   })  
 }
