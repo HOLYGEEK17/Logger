@@ -246,6 +246,11 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/ffpic
         <a class="dropdown-item" style="cursor: pointer;" onclick="setDate(2019, 12, this.text)">December 2019</a>
         <a class="dropdown-item" style="cursor: pointer;" onclick="setDate(2020, 1, this.text)">Janurary 2020</a>        
       </div>
+<!-- Weather -->    
+      <p id='weather' class="m-1"
+         style='display: inline-block; cursor:pointer;'>
+         <i class="far fa-sun" onclick="window.open('util/airnow', '_blank')"></i>
+      </p>         
 <!-- Habit score -->    
       <p id='habit-score' class="m-1"
          data-toggle="modal" data-target="#habitScoreModal"
