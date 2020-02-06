@@ -9,34 +9,54 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-colorschemes"></script>
 
-  <title>Air Now</title>
+  <title>Weather</title>
   <link rel="icon" href="https://i.ibb.co/c3cNLQ7/billd3.png">
 </head>
 
 <body>
-    <div id="rss-feeds"></div>
+    <div id="air-quality" class='m-3'>
+        <p id="aq-loc"></p>
+        <p id="aq-time"></p>
+        <p id="aq-pp25"></p>
+        <p id="aq-ozone"></p>
+    </div>
+
+    <div id="rss-feeds" style="display: None"></div>
 </body>
 
 <?php
-function console_log($output, $with_script_tags = true) {
-    $js_code = 'console.log(' . json_encode($output, JSON_HEX_TAG) . ');';
-    if ($with_script_tags) $js_code = '<script>' . $js_code . '</script>';
-    echo $js_code;
-}
-
-function println($str) {
-    print $str . '<br>';
-  }
-
-$acurl = 'http://feeds.enviroflash.info/rss/realtime/147.xml';
-$acxml_arr = file($acurl);
-$acxml_str = implode("", $acxml_arr);
-
-// println($acxml_str);
-
-$xml = simplexml_load_string($acxml_str);
-$info = (String) $xml->channel->item->description;
-
-echo($info);
 ?>
+
+<script>
+
+function getAirQuality() {
+    $.get( "airnow", function( data ) {
+        $('#rss-feeds').append($(data))
+
+        let td = $("td[valign='top']")[0];
+        let location = $($(td).find('div')[0]).text();    
+        let infoStr = $(td).find('div')[1];
+        let _infoArr = $(infoStr).text().trim().split("\n");
+        let infoArr = []
+        $(_infoArr).each(function(index, s) {
+            s = s.trim();
+            if (s.length > 0) {
+                infoArr.push(s);
+            }
+        });
+
+        let aqtime = infoArr[1];
+        let aqpp25 = infoArr[2];
+        let aqozone = infoArr[3];
+
+        $("#aq-loc").text(location);
+        $("#aq-time").text('Updated on: ' + aqtime);
+        $("#aq-pp25").text(aqpp25);
+        $("#aq-ozone").text(aqozone);
+    });
+}
+setInterval(getAirQuality(), 1000 * 60 * 20); // refresh every 20 min
+
+
+</script>
 </html>

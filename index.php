@@ -243,13 +243,14 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/ffpic
          <p style='display: inline-block; font-family: Lato;' id='dtstr'></p>
       </i>
       <div class="dropdown-menu" aria-labelledby="dropdownMonth">
-        <a class="dropdown-item" style="cursor: pointer;" onclick="setDate(2019, 12, this.text)">December 2019</a>
-        <a class="dropdown-item" style="cursor: pointer;" onclick="setDate(2020, 1, this.text)">Janurary 2020</a>        
+        <a class="dropdown-item" style="cursor: pointer;" onclick="setDate(2019, 12, this.text)">2019.12</a>
+        <a class="dropdown-item" style="cursor: pointer;" onclick="setDate(2020, 1, this.text)">2020.01</a>        
+        <a class="dropdown-item" style="cursor: pointer;" onclick="setDate(2020, 2, this.text)">2020.02</a>        
       </div>
 <!-- Weather -->    
       <p id='weather' class="m-1"
          style='display: inline-block; cursor:pointer;'>
-         <i class="far fa-sun" onclick="window.open('util/airnow', '_blank')"></i>
+         <i class="far fa-sun" onclick="window.open('util/weather', '_blank')"></i>
       </p>         
 <!-- Habit score -->    
       <p id='habit-score' class="m-1"
