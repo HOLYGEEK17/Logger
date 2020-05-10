@@ -18,6 +18,10 @@
 </body>
 
 <?php
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
 function console_log($output, $with_script_tags = true) {
     $js_code = 'console.log(' . json_encode($output, JSON_HEX_TAG) . ');';
     if ($with_script_tags) $js_code = '<script>' . $js_code . '</script>';
