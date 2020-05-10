@@ -135,6 +135,12 @@ switch ($func) {
         break;     
     case 'getTotalSaving';
         getTotalSaving();
+        break; 
+    case 'getMonthlySpending';
+        getMonthlySpending();
+        break;  
+    case 'getMonthlySaving';
+        getMonthlySaving();
         break;  
 }
 
@@ -160,10 +166,11 @@ function getLogCatRecords() {
 
 function getDailySpending() {
     global $uid, $dtyear, $dtmonth, $dtday;
-    $sql  = "select calendar_day.day as date, IFNULL(avg(logs.amount), 0) as amount ";
+    $sql  = "select calendar_day.day as date, IFNULL(sum(logs.amount), 0) as amount ";
     $sql .= "from logs right join calendar_day on DAY(logs.date) = calendar_day.day and YEAR(logs.date) = $dtyear and MONTH(logs.date) = $dtmonth ";
     $sql .= "and logs.amount > 0 and uid = $uid ";
     $sql .= "group by calendar_day.day limit $dtday; ";
+    // echo $sql;
     $logCatPairs = getRowsArr($sql);    
     echo json_encode($logCatPairs);
 }
@@ -174,6 +181,25 @@ function getDailySpendingHistory() {
     $sql .= "and logs.amount > 0 and uid = $uid ";
     $sql .= "group by calendar_day.day; ";
     $logCatPairs = getRowsArr($sql);
+    echo json_encode($logCatPairs);
+}
+
+function getMonthlySpending() {
+    global $uid;
+    // $sql  = "select CONCAT(YEAR(DATE), '-', MONTH(DATE)) as date, sum(amount) as amount from logs where uid = $uid GROUP BY YEAR(DATE), MONTH(DATE) ";
+    $sql = "select CONCAT(YEAR(DATE), '-', MONTH(DATE)) as date, ";
+    $sql .= "sum(amount) + (select sum(ramount) from recurrs where uid = $uid and ramount > 0 and rtag is null) as amount ";
+    $sql .= "from logs where uid = $uid GROUP BY YEAR(DATE), MONTH(DATE)";
+    // echo $sql;
+    $logCatPairs = getRowsArr($sql);    
+    echo json_encode($logCatPairs);
+}
+
+function getMonthlySaving() {
+    global $uid;
+    $sql  = "select CONCAT(year, '-', month) as date, amount from savings where uid = $uid ";
+    // echo $sql;
+    $logCatPairs = getRowsArr($sql);    
     echo json_encode($logCatPairs);
 }
 

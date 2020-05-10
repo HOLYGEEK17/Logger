@@ -246,12 +246,20 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/ffpic
         <a class="dropdown-item" style="cursor: pointer;" onclick="setDate(2019, 12, this.text)">2019.12</a>
         <a class="dropdown-item" style="cursor: pointer;" onclick="setDate(2020, 1, this.text)">2020.01</a>        
         <a class="dropdown-item" style="cursor: pointer;" onclick="setDate(2020, 2, this.text)">2020.02</a>        
+        <a class="dropdown-item" style="cursor: pointer;" onclick="setDate(2020, 3, this.text)">2020.03</a>
+        <a class="dropdown-item" style="cursor: pointer;" onclick="setDate(2020, 4, this.text)">2020.04</a>
+        <a class="dropdown-item" style="cursor: pointer;" onclick="setDate(2020, 5, this.text)">2020.05</a>
       </div>
 <!-- Weather -->    
       <p id='weather' class="m-1"
          style='display: inline-block; cursor:pointer;'>
          <i class="far fa-sun" onclick="window.open('util/weather', '_blank')"></i>
-      </p>         
+      </p>    
+<!-- Coronavirus -->    
+      <p id='crona' class="m-1"
+         style='display: inline-block; cursor:pointer;' onclick="window.open('https://coronavirus.1point3acres.com/', '_blank')">
+         Coronavirus         
+      </p>       
 <!-- Habit score -->    
       <p id='habit-score' class="m-1"
          data-toggle="modal" data-target="#habitScoreModal"
@@ -303,6 +311,7 @@ if ($gmail == 'holygeek17@gmail.com') $gpic = 'https://s5.gifyu.com/images/ffpic
           <div class="row">
             <div class="col"><canvas id="summaryChartPie" class="mx-auto" style="display: block" <?php if ($mobile) { echo "height='800' width='800'"; } else { echo "height='400' width='400'"; } ?>></canvas></div>
             <div class="col"><canvas id="summaryChartLine" class="mx-auto" style="display: block" <?php if ($mobile) { echo "height='800' width='800'"; } else { echo "height='400' width='400'"; } ?>></canvas></div>
+            <div class="col"><canvas id="summaryChartLineMonth" class="mx-auto" style="display: block" <?php if ($mobile) { echo "height='800' width='800'"; } else { echo "height='400' width='400'"; } ?>></canvas></div>
           </div>
         </div>
         <div id="summary-list"></div>
@@ -435,12 +444,14 @@ function autofillCategory(event, ui) {
 // Charts
 var myChartPie;
 var myChartLine;
+var myChartLineMonth;
 Chart.defaults.global.defaultFontSize = <?php if ($mobile) {echo "28";} else {echo "15";}?>;
 $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
   var pill_href = $(e.target).attr('href');  
   if (pill_href === '#summary') {
     readySummaryChartPie();
     readySummaryChartLine();
+    readySummaryChartLineMonth();
   }
 })
 
@@ -529,6 +540,100 @@ function readySummaryChartLine() {
       // console.log(amountArr);
       drawSummaryChartLine(dateArr, amountArr, avgAmtArr);
   });        
+}
+
+function readySummaryChartLineMonth() {
+  if (myChartLineMonth != null) myChartLineMonth.destroy();
+  // console.log("Getting data...");
+  // Get Chart Data
+  $.when($.ajax({
+      url: "dbfunc.php",
+      dataType:"json",
+      data: "func=getMonthlySpending"
+    }).fail(function (jqXHR, textStatus, errorThrown){console.log(errorThrown);}), 
+    $.ajax({
+      url: "dbfunc.php",
+      dataType:"json",
+      data: "func=getMonthlySaving"
+    }).fail(function (jqXHR, textStatus, errorThrown){console.log(errorThrown);})
+    ).then(function (resp1, resp2) {
+      // console.log(resp1[0]);
+      // console.log(resp2[0]);      
+      let amountArr = [];      
+      for (var i = 0; i < resp1[0].length; i++){
+            var record = resp1[0][i];                                
+            amountArr.push(parseFloat(record["amount"]));
+      }
+      let dateArr = [];
+      let avgAmtArr = [];
+      for (var i = 0; i < resp2[0].length; i++){
+            var record = resp2[0][i];
+            let date = record["date"];
+            dateArr.push(date);         
+            avgAmtArr.push(parseFloat(record["amount"]));
+      }
+      // console.log(dateArr);
+      // console.log(amountArr);
+      drawSummaryChartLineMonth(dateArr, amountArr, avgAmtArr);
+  });        
+}
+
+function drawSummaryChartLineMonth(titles, values1, values2) {
+  var ctxLine = $('#summaryChartLineMonth');
+  myChartLineMonth = new Chart(ctxLine, {
+      type: 'line',
+      data: {
+          labels: titles,
+          datasets: [{
+              label: '$ spent',    
+              backgroundColor: 'rgba(226, 106, 106, 1)',
+					    borderColor: 'rgba(226, 106, 106, 1)',
+              pointBackgroundColor: 'rgba(226, 106, 106, 1)',
+              pointBorderColor: 'rgba(226, 106, 106, 1)',
+              data: values1,                 
+              fill: false
+          }, {
+              label: '$ save',    
+              backgroundColor: 'rgba(0, 181, 204, 1)',
+					    borderColor: 'rgba(0, 181, 204, 1)',
+              pointBackgroundColor: 'rgba(0, 181, 204, 1)',
+              pointBorderColor: 'rgba(0, 181, 204, 1)',
+              data: values2,                 
+              fill: false
+          }]
+      },
+      options: {
+        responsive: false,
+        title: {
+					display: true,
+					text: 'Spending by month'
+				},
+        tooltips: {
+					mode: 'index',
+					intersect: false,
+				},
+				hover: {
+					mode: 'nearest',
+					intersect: true
+				},
+				scales: {
+					xAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: 'Month'
+						}
+					}],
+					yAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: 'Amount'
+						}
+					}]
+				}       
+      }
+  });
 }
 
 function drawSummaryChartLine(titles, values1, values2) {

@@ -71,8 +71,11 @@ function getSaving($uid, $dtyear, $dtmonth) {
 
 // main
 $uids = getUIDs();
-$dty = "YEAR(CURRENT_DATE())";
-$dtm = "MONTH(CURRENT_DATE())";
+// $dty = "YEAR(CURRENT_DATE())";
+// $dtm = "MONTH(CURRENT_DATE())";
+
+$dty = date("Y", strtotime("first day of previous month"));
+$dtm = date("n", strtotime("first day of previous month"));
 
 foreach($uids as $uid) {
     // console_log($uid);
